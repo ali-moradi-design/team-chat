@@ -38,24 +38,28 @@ export function Dialog({
             className,
           )}
         >
-          <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
-            <div className="min-w-0">
-              <RadixDialog.Title className="text-base font-semibold">{title}</RadixDialog.Title>
-              {description ? (
-                <RadixDialog.Description className="mt-0.5 text-sm text-muted">
-                  {description}
-                </RadixDialog.Description>
-              ) : (
-                <RadixDialog.Description className="sr-only">{title}</RadixDialog.Description>
-              )}
-            </div>
-            <RadixDialog.Close asChild>
-              <Button variant="ghost" size="icon-sm" aria-label="Close">
-                <X className="size-4" />
-              </Button>
-            </RadixDialog.Close>
+          <div className="border-b border-line px-5 py-4 pe-14">
+            <RadixDialog.Title className="text-base font-semibold">{title}</RadixDialog.Title>
+            {description ? (
+              <RadixDialog.Description className="mt-0.5 text-sm text-muted">
+                {description}
+              </RadixDialog.Description>
+            ) : (
+              <RadixDialog.Description className="sr-only">{title}</RadixDialog.Description>
+            )}
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
+          {/* After the content in DOM order so the first field (not "close") receives focus. */}
+          <RadixDialog.Close asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Close"
+              className="absolute end-3 top-3"
+            >
+              <X className="size-4" />
+            </Button>
+          </RadixDialog.Close>
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>

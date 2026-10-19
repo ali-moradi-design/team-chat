@@ -1,8 +1,4 @@
-node_modules/
-dist/
-.env
-.env.local
-*.log
-.DS_Store
-coverage/
-node_modules/.tmp/
+dist
+e2e-results
+test-results
+playwright-report

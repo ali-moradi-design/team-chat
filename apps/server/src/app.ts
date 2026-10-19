@@ -31,6 +31,8 @@ export function createApp(config: Config, logger: Logger, c: Container): Express
           fontSrc: ["'self'", 'data:'],
           objectSrc: ["'none'"],
           frameAncestors: ["'none'"],
+          // Only force HTTPS when the deployment is actually served over TLS.
+          upgradeInsecureRequests: config.cookieSecure ? [] : null,
         },
       },
       crossOriginResourcePolicy: { policy: 'same-site' },

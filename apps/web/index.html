@@ -10,27 +10,8 @@
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Team Chat</title>
-    <script>
-      // Apply theme and language direction before first paint (no flash).
-      (function () {
-        try {
-          var p = JSON.parse(localStorage.getItem('tc:prefs') || '{}');
-          var theme = p.theme || 'dark';
-          var dark =
-            theme === 'dark' ||
-            (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-          var el = document.documentElement;
-          el.classList.toggle('dark', dark);
-          el.classList.toggle('light', !dark);
-          var lang = p.lang === 'fa' ? 'fa' : 'en';
-          el.lang = lang;
-          el.dir = lang === 'fa' ? 'rtl' : 'ltr';
-          document
-            .querySelector('meta[name=theme-color]')
-            .setAttribute('content', dark ? '#170602' : '#fff8ef');
-        } catch (e) {}
-      })();
-    </script>
+    <!-- Blocking on purpose: applies theme + direction before first paint (external file: CSP forbids inline scripts). -->
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>
