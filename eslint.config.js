@@ -10,7 +10,8 @@ export default tseslint.config(
       '**/node_modules/**',
       '**/coverage/**',
       'docs/**',
-      '**/playwright-report/**', '**/public/**',
+      '**/playwright-report/**',
+      '**/public/**',
     ],
   },
   {

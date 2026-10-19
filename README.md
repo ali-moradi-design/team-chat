@@ -4,10 +4,10 @@ A Slack-style team chat built with **Node.js, Express 5, Socket.IO and MongoDB**
 **React 19, Vite and Tailwind v4** on the front end. Channels and direct messages, threads, reactions,
 mentions, files, read receipts, live presence, full-text search — in English and Persian (RTL), dark and light.
 
-|                                           |                                           |
-| ----------------------------------------- | ----------------------------------------- |
-| ![Dark with thread](docs/screens/chat-dark-thread.png) | ![Light](docs/screens/chat-light.png)     |
-| ![Persian RTL](docs/screens/chat-fa-rtl-dark.png)      | ![Login](docs/screens/login-dark.png)     |
+|                                                        |                                       |
+| ------------------------------------------------------ | ------------------------------------- |
+| ![Dark with thread](docs/screens/chat-dark-thread.png) | ![Light](docs/screens/chat-light.png) |
+| ![Persian RTL](docs/screens/chat-fa-rtl-dark.png)      | ![Login](docs/screens/login-dark.png) |
 
 <p>
   <img src="docs/screens/mobile-chat.png" width="240" alt="Mobile chat" />
@@ -98,16 +98,16 @@ More detail: [`docs/architecture.md`](docs/architecture.md), [`docs/performance.
 
 ## Scripts
 
-| Command                | What it does                                                       |
-| ---------------------- | ------------------------------------------------------------------ |
-| `pnpm dev`             | API + web in watch mode                                            |
-| `pnpm build`           | production builds (server bundle, web assets)                      |
-| `pnpm lint` / `format` | ESLint / Prettier                                                  |
-| `pnpm typecheck`       | TypeScript (strict) across all packages                            |
-| `pnpm test`            | Vitest: unit + server integration tests against a real MongoDB     |
-| `pnpm check`           | architecture rules (FSD + server modules) and the bundle budget    |
+| Command                | What it does                                                                  |
+| ---------------------- | ----------------------------------------------------------------------------- |
+| `pnpm dev`             | API + web in watch mode                                                       |
+| `pnpm build`           | production builds (server bundle, web assets)                                 |
+| `pnpm lint` / `format` | ESLint / Prettier                                                             |
+| `pnpm typecheck`       | TypeScript (strict) across all packages                                       |
+| `pnpm test`            | Vitest: unit + server integration tests against a real MongoDB                |
+| `pnpm check`           | architecture rules (FSD + server modules) and the bundle budget               |
 | `pnpm e2e`             | Playwright: two users chatting live, responsive matrix, 2,500-message history |
-| `pnpm seed`            | reset the database and create the demo workspace                   |
+| `pnpm seed`            | reset the database and create the demo workspace                              |
 
 ## Testing
 
