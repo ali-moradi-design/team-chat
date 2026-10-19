@@ -1,54 +1,42 @@
 import { useEffect } from 'react';
-import { useChatStore } from '@/shared/lib/chat';
+import { useTranslation } from 'react-i18next';
+import { useUsers } from '@/entities/user';
+import { useTyping, useTypingUserIds } from '../model/typing';
 
-const STALE_MS = 4000;
-
-export function TypingIndicator() {
-  const activeRoomId = useChatStore((s) => s.activeRoomId);
-  const userId = useChatStore((s) => s.userId);
-  const typing = useChatStore((s) => s.typingByRoom[activeRoomId] ?? EMPTY_TYPING);
-  const setTyping = useChatStore((s) => s.setTyping);
+/** Reserves its height so the timeline never jumps when someone starts typing. */
+export function TypingIndicator({ conversationId, meId }: { conversationId: string; meId: string }) {
+  const { t } = useTranslation();
+  const ids = useTypingUserIds(conversationId, meId);
+  const byId = useUsers((s) => s.byId);
 
   useEffect(() => {
-    const id = window.setInterval(() => {
-      const now = Date.now();
-      const map = useChatStore.getState().typingByRoom[activeRoomId] ?? {};
-      for (const [uid, meta] of Object.entries(map)) {
-        if (now - meta.at > STALE_MS) {
-          setTyping(activeRoomId, uid, meta.displayName, false);
-        }
-      }
-    }, 1000);
-    return () => clearInterval(id);
-  }, [activeRoomId, setTyping]);
+    if (ids.length === 0) return;
+    const timer = setInterval(() => useTyping.getState().prune(), 1000);
+    return () => clearInterval(timer);
+  }, [ids.length]);
 
-  const others = Object.entries(typing)
-    .filter(([id]) => id !== userId)
-    .map(([, v]) => v.displayName);
-
-  if (others.length === 0) {
-    return <div className="h-6 px-6" aria-live="polite" />;
-  }
-
-  const label =
-    others.length === 1
-      ? `${others[0]} is typing…`
-      : others.length === 2
-        ? `${others[0]} and ${others[1]} are typing…`
-        : `${others[0]} and ${others.length - 1} others are typing…`;
+  const name = (id: string) => byId[id]?.name ?? t('common.unknownUser');
+  const text =
+    ids.length === 0
+      ? ''
+      : ids.length === 1
+        ? t('typing.one', { a: name(ids[0]!) })
+        : ids.length === 2
+          ? t('typing.two', { a: name(ids[0]!), b: name(ids[1]!) })
+          : t('typing.many');
 
   return (
-    <div className="h-6 px-4 text-xs text-muted md:px-6" aria-live="polite">
-      <span className="inline-flex items-center gap-1.5">
-        <span className="flex gap-0.5" aria-hidden>
-          <span className="h-1 w-1 animate-pulse rounded-full bg-muted" />
-          <span className="h-1 w-1 animate-pulse rounded-full bg-muted [animation-delay:150ms]" />
-          <span className="h-1 w-1 animate-pulse rounded-full bg-muted [animation-delay:300ms]" />
-        </span>
-        {label}
-      </span>
+    <div className="flex h-6 items-center gap-2 px-5 text-xs text-muted" aria-live="polite">
+      {text && (
+        <>
+          <span className="flex gap-0.5" aria-hidden="true">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="size-1 rounded-full bg-muted" style={{ animation: `blink 1.2s ${i * 0.2}s infinite` }} />
+            ))}
+          </span>
+          <span className="truncate">{text}</span>
+        </>
+      )}
     </div>
   );
 }
-
-const EMPTY_TYPING: Record<string, { displayName: string; at: number }> = {};

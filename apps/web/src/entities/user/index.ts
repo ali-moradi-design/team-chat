@@ -1,1 +1,2 @@
-export type { ChatUser, PresenceUser } from './model';
+export { useUsers, useUser, usePresenceOf, displayName } from './model';
+export { UserAvatar } from './ui/UserAvatar';

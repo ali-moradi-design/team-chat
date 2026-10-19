@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib';
+import { cn } from '../lib/cn';
 
 export function Spinner({ className }: { className?: string }) {
   return (
@@ -6,7 +6,7 @@ export function Spinner({ className }: { className?: string }) {
       role="status"
       aria-label="Loading"
       className={cn(
-        'inline-block h-4 w-4 animate-spin rounded-full border-2 border-muted/30 border-t-accent',
+        'inline-block size-4 animate-spin rounded-full border-2 border-current border-t-transparent',
         className,
       )}
     />
