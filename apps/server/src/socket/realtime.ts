@@ -80,7 +80,13 @@ export async function createRealtime(
     // Browsers do not enforce CORS for the websocket transport, so verify Origin ourselves.
     allowRequest: (req, cb) => {
       const origin = req.headers.origin;
-      cb(null, !origin || origins.has(origin) || !config.isProd);
+      if (!origin || !config.isProd || origins.has(origin)) return cb(null, true);
+      // Same-origin deployments (web app served by this server) need no allowlist entry.
+      try {
+        cb(null, new URL(origin).host === req.headers.host);
+      } catch {
+        cb(null, false);
+      }
     },
     maxHttpBufferSize: 64 * 1024,
     pingInterval: 25_000,
