@@ -1,5 +1,6 @@
 import type { Ack } from './errors';
 import type {
+  Conversation,
   ConversationSummary,
   Me,
   Message,
@@ -29,6 +30,7 @@ export interface ServerToClientEvents {
   'presence:update': (payload: { userId: string; status: PresenceStatus }) => void;
   'read:updated': (payload: { conversationId: string; userId: string; messageId: string }) => void;
   'conversation:upsert': (payload: { conversation: ConversationSummary }) => void;
+  'conversation:updated': (payload: { conversation: Conversation }) => void;
   'conversation:removed': (payload: { conversationId: string }) => void;
   'user:upsert': (payload: { user: User }) => void;
 }

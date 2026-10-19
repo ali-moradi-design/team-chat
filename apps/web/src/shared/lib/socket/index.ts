@@ -1,9 +1,4 @@
-export {
-  connectSocket,
-  disconnectSocket,
-  getSocket,
-  type AuthPayload,
-} from './socket';
+export { connectSocket, disconnectSocket, getSocket, type AuthPayload } from './socket';
 export { SocketEvents, type SocketEventName } from './events';
 export type {
   ChatMessage,

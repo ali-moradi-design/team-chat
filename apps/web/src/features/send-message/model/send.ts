@@ -2,11 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getSocket, SocketEvents, type MessageAck } from '@/shared/lib/socket';
 import { useChatStore } from '@/shared/lib/chat';
 
-function emitSend(
-  roomId: string,
-  text: string,
-  clientMsgId: string,
-): void {
+function emitSend(roomId: string, text: string, clientMsgId: string): void {
   const socket = getSocket();
   const { reconcileAck, markFailed, setLastError } = useChatStore.getState();
 
@@ -16,22 +12,18 @@ function emitSend(
     return;
   }
 
-  socket.emit(
-    SocketEvents.MessageSend,
-    { roomId, text, clientMsgId },
-    (ack: MessageAck) => {
-      if (!ack?.ok) {
-        markFailed(clientMsgId);
-        setLastError(ack?.error ?? 'Failed to send message');
-        return;
-      }
-      reconcileAck(clientMsgId, {
-        id: ack.id,
-        createdAt: ack.createdAt,
-        status: 'sent',
-      });
-    },
-  );
+  socket.emit(SocketEvents.MessageSend, { roomId, text, clientMsgId }, (ack: MessageAck) => {
+    if (!ack?.ok) {
+      markFailed(clientMsgId);
+      setLastError(ack?.error ?? 'Failed to send message');
+      return;
+    }
+    reconcileAck(clientMsgId, {
+      id: ack.id,
+      createdAt: ack.createdAt,
+      status: 'sent',
+    });
+  });
 }
 
 export function sendMessage(text: string): void {

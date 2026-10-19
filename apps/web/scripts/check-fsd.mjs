@@ -66,13 +66,16 @@ for (const file of walk(ROOT)) {
         errors.push(`${rel}: layer '${fromLayer}' must not import higher '${spec}'`);
       }
 
-      if (fromLayer === 'shared' && ['app','pages','widgets','features','entities'].includes(toLayer)) {
+      if (
+        fromLayer === 'shared' &&
+        ['app', 'pages', 'widgets', 'features', 'entities'].includes(toLayer)
+      ) {
         errors.push(`${rel}: shared must not import '${spec}'`);
       }
-      if (fromLayer === 'entities' && ['app','pages','widgets','features'].includes(toLayer)) {
+      if (fromLayer === 'entities' && ['app', 'pages', 'widgets', 'features'].includes(toLayer)) {
         errors.push(`${rel}: entities must not import '${spec}'`);
       }
-      if (fromLayer === 'features' && ['app','pages','widgets'].includes(toLayer)) {
+      if (fromLayer === 'features' && ['app', 'pages', 'widgets'].includes(toLayer)) {
         errors.push(`${rel}: features must not import '${spec}'`);
       }
 
@@ -81,9 +84,7 @@ for (const file of walk(ROOT)) {
         const [, layer, slice, rest] = m;
         const same = fromLayer === layer && fromSlice === slice;
         if (!same && rest && rest !== '' && rest !== 'index') {
-          errors.push(
-            `${rel}: deep cross-slice import '${spec}' — use @/${layer}/${slice}`,
-          );
+          errors.push(`${rel}: deep cross-slice import '${spec}' — use @/${layer}/${slice}`);
         }
       }
       continue;
@@ -100,9 +101,7 @@ for (const file of walk(ROOT)) {
         toSlice !== fromSlice &&
         ['features', 'entities', 'widgets'].includes(fromLayer)
       ) {
-        errors.push(
-          `${rel}: relative cross-slice import '${spec}' → ${toLayer}/${toSlice}`,
-        );
+        errors.push(`${rel}: relative cross-slice import '${spec}' → ${toLayer}/${toSlice}`);
       }
     }
   }

@@ -1,35 +1,49 @@
 {
-  "name": "nodejs-chat-socket",
-  "version": "1.0.0",
+  "name": "@team-chat/server",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Production-minded realtime chat backend — Express + Socket.IO + TypeScript",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
+    "build": "tsup",
     "start": "node dist/index.js",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest"
-  },
-  "engines": {
-    "node": ">=20"
+    "seed": "tsx --env-file-if-exists=.env src/scripts/seed.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "check": "node scripts/check-modules.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "helmet": "^8.0.0",
-    "socket.io": "^4.8.1",
-    "uuid": "^11.1.0",
-    "zod": "^3.24.2"
+    "@socket.io/redis-adapter": "^8.3.0",
+    "@team-chat/shared": "workspace:*",
+    "argon2": "^0.45.1",
+    "compression": "^1.8.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "jose": "^6.2.12",
+    "mongoose": "^9.11.2",
+    "multer": "^2.4.0",
+    "pino": "^10.4.0",
+    "redis": "^6.3.0",
+    "sharp": "^0.35.5",
+    "socket.io": "^4.8.4",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/node": "^22.13.10",
-    "tsx": "^4.19.3",
-    "typescript": "~5.8.2",
-    "vitest": "^3.0.8"
+    "@types/compression": "^1.8.1",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^22.20.5",
+    "pino-pretty": "^13.2.0",
+    "socket.io-client": "^4.8.4",
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "vitest": "^3.2.7"
   }
 }

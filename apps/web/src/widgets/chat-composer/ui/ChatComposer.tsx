@@ -60,9 +60,7 @@ export function ChatComposer() {
           }}
           onKeyDown={onKeyDown}
           onBlur={() => stopTyping()}
-          placeholder={
-            offline ? 'Reconnecting…' : 'Message…  Enter to send · Shift+Enter newline'
-          }
+          placeholder={offline ? 'Reconnecting…' : 'Message…  Enter to send · Shift+Enter newline'}
           className="max-h-40 min-h-[48px] flex-1 resize-none bg-transparent py-3 text-[15px] leading-relaxed text-foreground placeholder:text-muted/55 focus:outline-none disabled:opacity-50"
         />
         <Button

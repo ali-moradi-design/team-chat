@@ -1,10 +1,5 @@
 import { create } from 'zustand';
-import type {
-  ChatMessage,
-  ChatRoom,
-  ConnStatus,
-  PresenceUser,
-} from '@/shared/lib/socket';
+import type { ChatMessage, ChatRoom, ConnStatus, PresenceUser } from '@/shared/lib/socket';
 
 type TypingMap = Record<string, Record<string, { displayName: string; at: number }>>;
 
@@ -109,9 +104,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setActiveRoom: (activeRoomId) => set({ activeRoomId }),
   markJoined: (roomId) =>
     set((s) =>
-      s.joinedRoomIds.includes(roomId)
-        ? s
-        : { joinedRoomIds: [...s.joinedRoomIds, roomId] },
+      s.joinedRoomIds.includes(roomId) ? s : { joinedRoomIds: [...s.joinedRoomIds, roomId] },
     ),
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   toggleTheme: () =>
@@ -164,9 +157,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       for (const [roomId, list] of Object.entries(s.messagesByRoom)) {
         nextRooms[roomId] = dedupeMessages(
           list.map((m) =>
-            m.clientMsgId === clientMsgId
-              ? { ...m, ...patch, status: patch.status ?? 'sent' }
-              : m,
+            m.clientMsgId === clientMsgId ? { ...m, ...patch, status: patch.status ?? 'sent' } : m,
           ),
         );
       }

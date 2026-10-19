@@ -26,13 +26,9 @@ export function joinRoom(roomId: string): void {
 export function createRoom(name: string): void {
   const socket = getSocket();
   if (!socket) return;
-  socket.emit(
-    SocketEvents.RoomCreate,
-    { name },
-    (res: { ok?: boolean; room?: { id: string } }) => {
-      if (res?.ok && res.room) joinRoom(res.room.id);
-    },
-  );
+  socket.emit(SocketEvents.RoomCreate, { name }, (res: { ok?: boolean; room?: { id: string } }) => {
+    if (res?.ok && res.room) joinRoom(res.room.id);
+  });
 }
 
 function resyncRoom(roomId: string): void {

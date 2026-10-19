@@ -109,35 +109,87 @@ const av = (i, t, cls = '', st = '') =>
 
 const T = {
   en: {
-    dir: 'ltr', lang: 'en',
-    ws: 'Northwind', wsSub: '48 members', search: 'Search messages', channels: 'Channels', dms: 'Direct messages',
-    ch: ['general', 'design-team', 'engineering', 'launch-2026', 'random'], priv: 'security',
+    dir: 'ltr',
+    lang: 'en',
+    ws: 'Northwind',
+    wsSub: '48 members',
+    search: 'Search messages',
+    channels: 'Channels',
+    dms: 'Direct messages',
+    ch: ['general', 'design-team', 'engineering', 'launch-2026', 'random'],
+    priv: 'security',
     dm: ['Sara Lindqvist', 'Omid Karimi', 'Mina, Jonas, you'],
-    me: 'Ali Moradi', meSt: 'Online', topic: 'Weekly design sync, specs and reviews', members: '12',
-    day: 'Today', newDiv: 'New messages',
-    m1: ['Sara Lindqvist', '09:12', 'Pushed the new <b>onboarding flow</b> to staging. Can someone check the empty states?'],
-    m2: ['Omid Karimi', '09:20', '<span class="at">@Ali</span> checked it on mobile, the sidebar drawer looks great. One bug: <code>retry</code> button overlaps the toast.'],
+    me: 'Ali Moradi',
+    meSt: 'Online',
+    topic: 'Weekly design sync, specs and reviews',
+    members: '12',
+    day: 'Today',
+    newDiv: 'New messages',
+    m1: [
+      'Sara Lindqvist',
+      '09:12',
+      'Pushed the new <b>onboarding flow</b> to staging. Can someone check the empty states?',
+    ],
+    m2: [
+      'Omid Karimi',
+      '09:20',
+      '<span class="at">@Ali</span> checked it on mobile, the sidebar drawer looks great. One bug: <code>retry</code> button overlaps the toast.',
+    ],
     m3: ['Mina Haddad', '09:41', 'Here is the updated moodboard for the launch page.'],
-    m4: ['Jonas Weber', '10:05', 'Looks good! سلام به همه، این پیام فارسی است و راست‌چین نمایش داده می‌شود.'],
-    file: ['launch-spec-v3.pdf', '2.4 MB · PDF'], thread: '6 replies · last reply 10:32',
-    typing: 'Sara and Omid are typing…', ph: 'Message #design-team', edited: '(edited)', seen: 'Seen by Omid',
-    threadTitle: 'Thread', replies: 'replies', tr: ['Mina Haddad', 'Jonas Weber', 'Sara Lindqvist'],
+    m4: [
+      'Jonas Weber',
+      '10:05',
+      'Looks good! سلام به همه، این پیام فارسی است و راست‌چین نمایش داده می‌شود.',
+    ],
+    file: ['launch-spec-v3.pdf', '2.4 MB · PDF'],
+    thread: '6 replies · last reply 10:32',
+    typing: 'Sara and Omid are typing…',
+    ph: 'Message #design-team',
+    edited: '(edited)',
+    seen: 'Seen by Omid',
+    threadTitle: 'Thread',
+    replies: 'replies',
+    tr: ['Mina Haddad', 'Jonas Weber', 'Sara Lindqvist'],
     reply: 'Reply…',
   },
   fa: {
-    dir: 'rtl', lang: 'fa',
-    ws: 'نورث‌ویند', wsSub: '۴۸ عضو', search: 'جستجوی پیام‌ها', channels: 'کانال‌ها', dms: 'پیام‌های مستقیم',
-    ch: ['عمومی', 'تیم-طراحی', 'مهندسی', 'عرضه-۱۴۰۵', 'متفرقه'], priv: 'امنیت',
+    dir: 'rtl',
+    lang: 'fa',
+    ws: 'نورث‌ویند',
+    wsSub: '۴۸ عضو',
+    search: 'جستجوی پیام‌ها',
+    channels: 'کانال‌ها',
+    dms: 'پیام‌های مستقیم',
+    ch: ['عمومی', 'تیم-طراحی', 'مهندسی', 'عرضه-۱۴۰۵', 'متفرقه'],
+    priv: 'امنیت',
     dm: ['سارا لیندکویست', 'امید کریمی', 'مینا، یوناس، شما'],
-    me: 'علی مرادی', meSt: 'آنلاین', topic: 'جلسهٔ هفتگی طراحی، مشخصات و بازبینی', members: '۱۲',
-    day: 'امروز', newDiv: 'پیام‌های جدید',
-    m1: ['سارا لیندکویست', '۰۹:۱۲', 'جریان <b>آشناسازی</b> جدید روی محیط آزمایشی رفت. کسی می‌تواند حالت‌های خالی را بررسی کند؟'],
-    m2: ['امید کریمی', '۰۹:۲۰', '<span class="at">@علی</span> روی موبایل دیدم، منوی کناری عالی شده. یک باگ هست: دکمهٔ <code>retry</code> روی اعلان می‌افتد.'],
+    me: 'علی مرادی',
+    meSt: 'آنلاین',
+    topic: 'جلسهٔ هفتگی طراحی، مشخصات و بازبینی',
+    members: '۱۲',
+    day: 'امروز',
+    newDiv: 'پیام‌های جدید',
+    m1: [
+      'سارا لیندکویست',
+      '۰۹:۱۲',
+      'جریان <b>آشناسازی</b> جدید روی محیط آزمایشی رفت. کسی می‌تواند حالت‌های خالی را بررسی کند؟',
+    ],
+    m2: [
+      'امید کریمی',
+      '۰۹:۲۰',
+      '<span class="at">@علی</span> روی موبایل دیدم، منوی کناری عالی شده. یک باگ هست: دکمهٔ <code>retry</code> روی اعلان می‌افتد.',
+    ],
     m3: ['مینا حداد', '۰۹:۴۱', 'مودبورد به‌روز شدهٔ صفحهٔ عرضه این است.'],
     m4: ['یوناس وبر', '۱۰:۰۵', 'عالیه! Looks good, ship it after the final review.'],
-    file: ['launch-spec-v3.pdf', '۲٫۴ مگابایت · PDF'], thread: '۶ پاسخ · آخرین پاسخ ۱۰:۳۲',
-    typing: 'سارا و امید در حال نوشتن…', ph: 'پیام به #تیم-طراحی', edited: '(ویرایش‌شده)', seen: 'دیده‌شده توسط امید',
-    threadTitle: 'رشتهٔ گفتگو', replies: 'پاسخ', tr: ['مینا حداد', 'یوناس وبر', 'سارا لیندکویست'],
+    file: ['launch-spec-v3.pdf', '۲٫۴ مگابایت · PDF'],
+    thread: '۶ پاسخ · آخرین پاسخ ۱۰:۳۲',
+    typing: 'سارا و امید در حال نوشتن…',
+    ph: 'پیام به #تیم-طراحی',
+    edited: '(ویرایش‌شده)',
+    seen: 'دیده‌شده توسط امید',
+    threadTitle: 'رشتهٔ گفتگو',
+    replies: 'پاسخ',
+    tr: ['مینا حداد', 'یوناس وبر', 'سارا لیندکویست'],
     reply: 'پاسخ…',
   },
 };
@@ -162,18 +214,26 @@ function sidebar(t, cls = '') {
 }
 
 function msgs(t, withThread = true) {
-  const rx = (a) => a.map(([e, n, me]) => `<span class="r ${me ? 'me' : ''}">${e} ${n}</span>`).join('');
+  const rx = (a) =>
+    a.map(([e, n, me]) => `<span class="r ${me ? 'me' : ''}">${e} ${n}</span>`).join('');
   return `
   <div class="day">${t.day}</div>
   <div class="msg">${av(0, 'S')}<div class="body"><div class="meta"><b>${t.m1[0]}</b><time>${t.m1[1]}</time></div><div class="txt">${t.m1[2]}</div>
-    <div class="react">${rx([['👍', 3, true], ['🎉', 2], ['👀', 1]])}<span class="r">☺ +</span></div></div></div>
+    <div class="react">${rx([
+      ['👍', 3, true],
+      ['🎉', 2],
+      ['👀', 1],
+    ])}<span class="r">☺ +</span></div></div></div>
   <div class="day new">${t.newDiv}</div>
   <div class="msg mentioned">${av(1, 'O')}<div class="body"><div class="meta"><b>${t.m2[0]}</b><time>${t.m2[1]}</time><i>${t.edited}</i></div><div class="txt">${t.m2[2]}</div>
     ${withThread ? `<div class="thr">↳ ${t.thread}</div>` : ''}</div></div>
   <div class="msg">${av(2, 'M')}<div class="body"><div class="meta"><b>${t.m3[0]}</b><time>${t.m3[1]}</time></div><div class="txt">${t.m3[2]}</div>
     <div class="img"></div><div class="file"><div class="ic">PDF</div><div><b>${t.file[0]}</b><small>${t.file[1]}</small></div></div></div></div>
   <div class="msg">${av(3, 'J')}<div class="body"><div class="meta"><b>${t.m4[0]}</b><time>${t.m4[1]}</time></div><div class="txt">${t.m4[2]}</div>
-    <div class="react">${rx([['🚀', 4], ['❤️', 1]])}</div></div></div>`;
+    <div class="react">${rx([
+      ['🚀', 4],
+      ['❤️', 1],
+    ])}</div></div></div>`;
 }
 
 function composer(t) {

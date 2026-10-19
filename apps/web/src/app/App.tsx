@@ -24,9 +24,7 @@ export function App() {
 
   if (!session) {
     return (
-      <DisplayNameGate
-        onReady={(displayName, userId) => setSession({ displayName, userId })}
-      />
+      <DisplayNameGate onReady={(displayName, userId) => setSession({ displayName, userId })} />
     );
   }
 
