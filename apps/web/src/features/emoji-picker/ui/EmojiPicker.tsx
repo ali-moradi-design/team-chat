@@ -36,9 +36,22 @@ export default function EmojiPicker({ onPick }: { onPick: (emoji: string) => voi
   const active = EMOJI_CATEGORIES.find((c) => c.id === category)!;
   return (
     <div className="flex w-[19.5rem] max-w-[calc(100vw-1.5rem)] flex-col gap-2 p-2.5">
-      <Input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('common.search')} className="h-9" aria-label={t('common.search')} />
+      <Input
+        autoFocus
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder={t('common.search')}
+        className="h-9"
+        aria-label={t('common.search')}
+      />
       {query ? (
-        <div className="h-52 overflow-y-auto">{results.length ? grid(results.map((r) => r.emoji)) : <p className="p-4 text-center text-sm text-muted">—</p>}</div>
+        <div className="h-52 overflow-y-auto">
+          {results.length ? (
+            grid(results.map((r) => r.emoji))
+          ) : (
+            <p className="p-4 text-center text-sm text-muted">—</p>
+          )}
+        </div>
       ) : (
         <>
           <div className="flex gap-1 border-b border-line pb-1.5" dir="ltr">
@@ -49,14 +62,19 @@ export default function EmojiPicker({ onPick }: { onPick: (emoji: string) => voi
                 aria-label={c.id}
                 aria-pressed={c.id === category}
                 onClick={() => setCategory(c.id)}
-                className={cn('grid size-8 place-items-center rounded-lg text-lg', c.id === category ? 'bg-mention' : 'hover:bg-elevated-2')}
+                className={cn(
+                  'grid size-8 place-items-center rounded-lg text-lg',
+                  c.id === category ? 'bg-mention' : 'hover:bg-elevated-2',
+                )}
               >
                 {c.icon}
               </button>
             ))}
           </div>
           <div className="h-52 overflow-y-auto">
-            {category === EMOJI_CATEGORIES[0]!.id && recent.length > 0 && <div className="mb-2">{grid(recent)}</div>}
+            {category === EMOJI_CATEGORIES[0]!.id && recent.length > 0 && (
+              <div className="mb-2">{grid(recent)}</div>
+            )}
             {grid(active.items.map((i) => i.split(' ')[0]!))}
           </div>
         </>
@@ -64,4 +82,3 @@ export default function EmojiPicker({ onPick }: { onPick: (emoji: string) => voi
     </div>
   );
 }
-

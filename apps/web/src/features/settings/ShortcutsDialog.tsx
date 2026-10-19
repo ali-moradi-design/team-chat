@@ -23,12 +23,21 @@ export function ShortcutsDialog() {
     [t('shortcuts.help'), ['?']],
   ];
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && close('shortcuts')} title={t('shortcuts.title')} mobileSheet>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => !o && close('shortcuts')}
+      title={t('shortcuts.title')}
+      mobileSheet
+    >
       <ul className="divide-y divide-line px-5 py-1">
         {rows.map(([label, keys]) => (
           <li key={label} className="flex items-center justify-between gap-4 py-2.5 text-sm">
             <span>{label}</span>
-            <span className="flex gap-1">{keys.map((k) => <Kbd key={k}>{k}</Kbd>)}</span>
+            <span className="flex gap-1">
+              {keys.map((k) => (
+                <Kbd key={k}>{k}</Kbd>
+              ))}
+            </span>
           </li>
         ))}
       </ul>

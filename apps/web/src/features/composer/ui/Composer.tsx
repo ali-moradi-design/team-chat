@@ -1,5 +1,28 @@
-import { AtSign, Bold, Code, FileText, Italic, Link2, Paperclip, SendHorizontal, Smile, X } from 'lucide-react';
-import { Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type DragEvent, type KeyboardEvent } from 'react';
+import {
+  AtSign,
+  Bold,
+  Code,
+  FileText,
+  Italic,
+  Link2,
+  Paperclip,
+  SendHorizontal,
+  Smile,
+  X,
+} from 'lucide-react';
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ClipboardEvent,
+  type DragEvent,
+  type KeyboardEvent,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { LIMITS, type User } from '@team-chat/shared';
 import { sendMessage } from '@/entities/message';
@@ -7,7 +30,15 @@ import { LazyEmojiPicker } from '@/features/emoji-picker';
 import { cn } from '@/shared/lib/cn';
 import { useFormatters } from '@/shared/lib/format';
 import { getSocket } from '@/shared/socket/client';
-import { Avatar, Button, Popover, PopoverContent, PopoverTrigger, Spinner, Tooltip } from '@/shared/ui';
+import {
+  Avatar,
+  Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Spinner,
+  Tooltip,
+} from '@/shared/ui';
 import { loadDraft, saveDraft } from '../model/drafts';
 import { findMentionQuery, insertAt, insertMention, wrapSelection, type Edit } from '../model/text';
 import { useUploads, type UploadItem } from '../model/uploads';
@@ -41,9 +72,18 @@ function UploadChip({ item, onRemove }: { item: UploadItem; onRemove: () => void
   const { t } = useTranslation();
   const f = useFormatters();
   const errorText =
-    item.error === 'tooBig' ? t('composer.tooBig', { size: f.bytes(LIMITS.maxFileSizeBytes) }) : item.error === 'type' ? t('composer.typeNotAllowed') : t('composer.uploadFailed');
+    item.error === 'tooBig'
+      ? t('composer.tooBig', { size: f.bytes(LIMITS.maxFileSizeBytes) })
+      : item.error === 'type'
+        ? t('composer.typeNotAllowed')
+        : t('composer.uploadFailed');
   return (
-    <li className={cn('relative flex h-14 max-w-56 items-center gap-2.5 overflow-hidden rounded-xl border bg-elevated pe-8 ps-1.5', item.status === 'error' ? 'border-danger-ink/60' : 'border-line')}>
+    <li
+      className={cn(
+        'relative flex h-14 max-w-56 items-center gap-2.5 overflow-hidden rounded-xl border bg-elevated pe-8 ps-1.5',
+        item.status === 'error' ? 'border-danger-ink/60' : 'border-line',
+      )}
+    >
       {item.previewUrl ? (
         <img src={item.previewUrl} alt="" className="size-11 shrink-0 rounded-lg object-cover" />
       ) : (
@@ -55,16 +95,33 @@ function UploadChip({ item, onRemove }: { item: UploadItem; onRemove: () => void
         <span className="block truncate font-medium" dir="auto">
           {item.name}
         </span>
-        <span className={cn('block truncate', item.status === 'error' ? 'text-danger-ink' : 'text-muted')}>
-          {item.status === 'error' ? errorText : item.status === 'uploading' ? `${item.progress}%` : f.bytes(item.size)}
+        <span
+          className={cn(
+            'block truncate',
+            item.status === 'error' ? 'text-danger-ink' : 'text-muted',
+          )}
+        >
+          {item.status === 'error'
+            ? errorText
+            : item.status === 'uploading'
+              ? `${item.progress}%`
+              : f.bytes(item.size)}
         </span>
       </span>
       {item.status === 'uploading' && (
         <span className="absolute inset-x-0 bottom-0 h-0.5 bg-line">
-          <span className="block h-full bg-accent transition-[width]" style={{ width: `${item.progress}%` }} />
+          <span
+            className="block h-full bg-accent transition-[width]"
+            style={{ width: `${item.progress}%` }}
+          />
         </span>
       )}
-      <button type="button" onClick={onRemove} aria-label={t('composer.removeFile')} className="absolute end-1 top-1 grid size-6 place-items-center rounded-md text-muted hover:bg-elevated-2 hover:text-fg">
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={t('composer.removeFile')}
+        className="absolute end-1 top-1 grid size-6 place-items-center rounded-md text-muted hover:bg-elevated-2 hover:text-fg"
+      >
         <X className="size-3.5" />
       </button>
     </li>
@@ -74,7 +131,10 @@ function UploadChip({ item, onRemove }: { item: UploadItem; onRemove: () => void
 export function Composer(props: ComposerProps) {
   const { t } = useTranslation();
   const [text, setText] = useState(() => loadDraft(props.draftKey));
-  const [mention, setMention] = useState<{ q: ReturnType<typeof findMentionQuery> & object; index: number } | null>(null);
+  const [mention, setMention] = useState<{
+    q: ReturnType<typeof findMentionQuery> & object;
+    index: number;
+  } | null>(null);
   const [dragging, setDragging] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const area = useRef<HTMLTextAreaElement>(null);
@@ -146,7 +206,10 @@ export function Composer(props: ComposerProps) {
     });
     noteTyping(edit.value);
   };
-  const selection = () => ({ start: area.current?.selectionStart ?? text.length, end: area.current?.selectionEnd ?? text.length });
+  const selection = () => ({
+    start: area.current?.selectionStart ?? text.length,
+    end: area.current?.selectionEnd ?? text.length,
+  });
   const wrap = (before: string, after = before) => {
     const { start, end } = selection();
     apply(wrapSelection(text, start, end, before, after));
@@ -168,10 +231,23 @@ export function Composer(props: ComposerProps) {
     if (!mention) return [];
     const q = mention.q.query.toLowerCase();
     const people = props.members
-      .filter((u) => u.id !== props.meId && (u.handle.includes(q) || u.name.toLowerCase().includes(q)))
+      .filter(
+        (u) => u.id !== props.meId && (u.handle.includes(q) || u.name.toLowerCase().includes(q)),
+      )
       .slice(0, 6)
       .map((u) => ({ key: u.id, handle: u.handle, label: u.name, hue: u.hue }));
-    const channel: MentionOption[] = props.allowChannelMention && 'channel'.startsWith(q) ? [{ key: 'channel', handle: 'channel', label: t('composer.everyone'), hue: 40, isChannel: true }] : [];
+    const channel: MentionOption[] =
+      props.allowChannelMention && 'channel'.startsWith(q)
+        ? [
+            {
+              key: 'channel',
+              handle: 'channel',
+              label: t('composer.everyone'),
+              hue: 40,
+              isChannel: true,
+            },
+          ]
+        : [];
     return [...people, ...channel];
   }, [mention, props.members, props.meId, props.allowChannelMention, t]);
 
@@ -189,7 +265,11 @@ export function Composer(props: ComposerProps) {
   // ---- sending ---------------------------------------------------------------------------------------------------
   const uploading = uploads.items.some((i) => i.status === 'uploading');
   const ready = uploads.items.filter((i) => i.status === 'done' && i.attachment);
-  const canSend = !props.disabled && !uploading && (text.trim().length > 0 || ready.length > 0) && text.length <= LIMITS.messageMaxLength;
+  const canSend =
+    !props.disabled &&
+    !uploading &&
+    (text.trim().length > 0 || ready.length > 0) &&
+    text.length <= LIMITS.messageMaxLength;
 
   const submit = () => {
     if (!canSend) return;
@@ -279,31 +359,45 @@ export function Composer(props: ComposerProps) {
 
   if (props.disabled) {
     return (
-      <div className="mx-4 mb-4 rounded-2xl border border-line bg-panel px-4 py-3 text-center text-sm text-muted">{props.disabledReason}</div>
+      <div className="mx-4 mb-4 rounded-2xl border border-line bg-panel px-4 py-3 text-center text-sm text-muted">
+        {props.disabledReason}
+      </div>
     );
   }
 
   return (
     <div
-      className={cn('relative mx-3 mb-3 rounded-2xl border bg-panel transition-colors focus-within:border-accent/70 sm:mx-4 sm:mb-4', dragging ? 'border-accent border-dashed' : 'border-line')}
+      className={cn(
+        'relative mx-3 mb-3 rounded-2xl border bg-panel transition-colors focus-within:border-accent/70 sm:mx-4 sm:mb-4',
+        dragging ? 'border-accent border-dashed' : 'border-line',
+      )}
       onDragEnter={onDragEnter}
       onDragOver={(e) => hasFiles(e) && e.preventDefault()}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
       {dragging && (
-        <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-2xl bg-panel/90 text-sm font-medium text-accent-ink">{t('composer.dropFiles')}</div>
+        <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-2xl bg-panel/90 text-sm font-medium text-accent-ink">
+          {t('composer.dropFiles')}
+        </div>
       )}
 
       {mention && options.length > 0 && (
-        <ul id={listId} role="listbox" className="absolute bottom-full start-0 z-20 mb-2 w-72 max-w-full overflow-hidden rounded-xl border border-line bg-panel p-1 shadow-pop">
+        <ul
+          id={listId}
+          role="listbox"
+          className="absolute bottom-full start-0 z-20 mb-2 w-72 max-w-full overflow-hidden rounded-xl border border-line bg-panel p-1 shadow-pop"
+        >
           {options.map((o, i) => (
             <li key={o.key} role="option" aria-selected={i === mention.index}>
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => pickMention(o)}
-                className={cn('flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-start text-sm', i === mention.index && 'bg-elevated')}
+                className={cn(
+                  'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-start text-sm',
+                  i === mention.index && 'bg-elevated',
+                )}
               >
                 <Avatar name={o.label} hue={o.hue} size="sm" />
                 <span className="min-w-0 flex-1 truncate" dir="auto">
@@ -342,7 +436,10 @@ export function Composer(props: ComposerProps) {
           refreshMention(e.target.value, e.target.selectionStart);
         }}
         onKeyDown={onKeyDown}
-        onKeyUp={(e) => ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key) && refreshMention(text, e.currentTarget.selectionStart)}
+        onKeyUp={(e) =>
+          ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key) &&
+          refreshMention(text, e.currentTarget.selectionStart)
+        }
         onClick={(e) => refreshMention(text, e.currentTarget.selectionStart)}
         onBlur={() => {
           stopTyping();
@@ -354,22 +451,46 @@ export function Composer(props: ComposerProps) {
 
       <div className="flex items-center gap-0.5 px-2 pb-2">
         <Tooltip label={`${t('composer.bold')} (Ctrl+B)`}>
-          <Button variant="ghost" size="icon-sm" aria-label={t('composer.bold')} onClick={() => wrap('**')} className="hidden sm:inline-flex">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('composer.bold')}
+            onClick={() => wrap('**')}
+            className="hidden sm:inline-flex"
+          >
             <Bold className="size-4" />
           </Button>
         </Tooltip>
         <Tooltip label={`${t('composer.italic')} (Ctrl+I)`}>
-          <Button variant="ghost" size="icon-sm" aria-label={t('composer.italic')} onClick={() => wrap('_')} className="hidden sm:inline-flex">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('composer.italic')}
+            onClick={() => wrap('_')}
+            className="hidden sm:inline-flex"
+          >
             <Italic className="size-4" />
           </Button>
         </Tooltip>
         <Tooltip label={`${t('composer.code')} (Ctrl+E)`}>
-          <Button variant="ghost" size="icon-sm" aria-label={t('composer.code')} onClick={() => wrap('`')} className="hidden sm:inline-flex">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('composer.code')}
+            onClick={() => wrap('`')}
+            className="hidden sm:inline-flex"
+          >
             <Code className="size-4" />
           </Button>
         </Tooltip>
         <Tooltip label={t('composer.link')}>
-          <Button variant="ghost" size="icon-sm" aria-label={t('composer.link')} onClick={insertLink} className="hidden sm:inline-flex">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('composer.link')}
+            onClick={insertLink}
+            className="hidden sm:inline-flex"
+          >
             <Link2 className="size-4" />
           </Button>
         </Tooltip>
@@ -382,7 +503,10 @@ export function Composer(props: ComposerProps) {
             onClick={() => {
               const { start, end } = selection();
               apply(insertAt(text, start, end, '@'));
-              requestAnimationFrame(() => area.current && refreshMention(area.current.value, area.current.selectionStart));
+              requestAnimationFrame(
+                () =>
+                  area.current && refreshMention(area.current.value, area.current.selectionStart),
+              );
             }}
           >
             <AtSign className="size-4" />
@@ -397,13 +521,24 @@ export function Composer(props: ComposerProps) {
             </PopoverTrigger>
           </Tooltip>
           <PopoverContent align="start" side="top">
-            <Suspense fallback={<div className="grid h-60 w-72 place-items-center"><Spinner /></div>}>
+            <Suspense
+              fallback={
+                <div className="grid h-60 w-72 place-items-center">
+                  <Spinner />
+                </div>
+              }
+            >
               <LazyEmojiPicker onPick={insertEmoji} />
             </Suspense>
           </PopoverContent>
         </Popover>
         <Tooltip label={t('composer.attach')}>
-          <Button variant="ghost" size="icon-sm" aria-label={t('composer.attach')} onClick={() => fileInput.current?.click()}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('composer.attach')}
+            onClick={() => fileInput.current?.click()}
+          >
             <Paperclip className="size-4" />
           </Button>
         </Tooltip>
@@ -420,12 +555,21 @@ export function Composer(props: ComposerProps) {
 
         <span className="flex-1" />
         {left < 400 && (
-          <span className={cn('me-2 text-xs tabular-nums', left < 0 ? 'text-danger-ink' : 'text-muted')} aria-live="polite">
+          <span
+            className={cn('me-2 text-xs tabular-nums', left < 0 ? 'text-danger-ink' : 'text-muted')}
+            aria-live="polite"
+          >
             {t('composer.charsLeft', { count: left })}
           </span>
         )}
         <Tooltip label={`${t('composer.send')} (Enter)`}>
-          <Button variant={canSend ? 'primary' : 'secondary'} size="icon" aria-label={t('composer.send')} disabled={!canSend} onClick={submit}>
+          <Button
+            variant={canSend ? 'primary' : 'secondary'}
+            size="icon"
+            aria-label={t('composer.send')}
+            disabled={!canSend}
+            onClick={submit}
+          >
             {uploading ? <Spinner /> : <SendHorizontal className="size-4 rtl:-scale-x-100" />}
           </Button>
         </Tooltip>

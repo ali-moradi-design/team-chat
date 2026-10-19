@@ -15,7 +15,15 @@ interface DialogProps {
   mobileSheet?: boolean;
 }
 
-export function Dialog({ open, onOpenChange, title, description, children, className, mobileSheet }: DialogProps) {
+export function Dialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  children,
+  className,
+  mobileSheet,
+}: DialogProps) {
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
@@ -34,7 +42,9 @@ export function Dialog({ open, onOpenChange, title, description, children, class
             <div className="min-w-0">
               <RadixDialog.Title className="text-base font-semibold">{title}</RadixDialog.Title>
               {description ? (
-                <RadixDialog.Description className="mt-0.5 text-sm text-muted">{description}</RadixDialog.Description>
+                <RadixDialog.Description className="mt-0.5 text-sm text-muted">
+                  {description}
+                </RadixDialog.Description>
               ) : (
                 <RadixDialog.Description className="sr-only">{title}</RadixDialog.Description>
               )}

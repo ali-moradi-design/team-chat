@@ -33,7 +33,13 @@ export interface MessageItemProps {
   footer?: ReactNode;
 }
 
-function ImageAttachment({ a, onOpen }: { a: Attachment; onOpen?: ((a: Attachment) => void) | undefined }) {
+function ImageAttachment({
+  a,
+  onOpen,
+}: {
+  a: Attachment;
+  onOpen?: ((a: Attachment) => void) | undefined;
+}) {
   const [loaded, setLoaded] = useState(false);
   const ratio = a.width && a.height ? a.width / a.height : 4 / 3;
   return (
@@ -52,7 +58,10 @@ function ImageAttachment({ a, onOpen }: { a: Attachment; onOpen?: ((a: Attachmen
         loading="lazy"
         decoding="async"
         onLoad={() => setLoaded(true)}
-        className={cn('size-full object-cover transition-opacity duration-200', loaded ? 'opacity-100' : 'opacity-0')}
+        className={cn(
+          'size-full object-cover transition-opacity duration-200',
+          loaded ? 'opacity-100' : 'opacity-0',
+        )}
       />
       {!loaded && <span className="skeleton absolute inset-0" />}
     </button>
@@ -80,12 +89,22 @@ export function FileAttachment({ a }: { a: Attachment }) {
   );
 }
 
-export function Attachments({ items, onOpenImage }: { items: Attachment[]; onOpenImage?: ((a: Attachment) => void) | undefined }) {
+export function Attachments({
+  items,
+  onOpenImage,
+}: {
+  items: Attachment[];
+  onOpenImage?: ((a: Attachment) => void) | undefined;
+}) {
   if (items.length === 0) return null;
   return (
     <div className="mt-1.5 flex flex-wrap gap-2">
       {items.map((a) =>
-        a.kind === 'image' ? <ImageAttachment key={a.fileId} a={a} onOpen={onOpenImage} /> : <FileAttachment key={a.fileId} a={a} />,
+        a.kind === 'image' ? (
+          <ImageAttachment key={a.fileId} a={a} onOpen={onOpenImage} />
+        ) : (
+          <FileAttachment key={a.fileId} a={a} />
+        ),
       )}
     </div>
   );
@@ -102,17 +121,23 @@ export const MessageItem = memo(function MessageItem(p: MessageItemProps) {
   return (
     <article
       data-message-id={m.id}
+      // Focusable so a tap reveals the action toolbar on touch screens (no hover there).
+      tabIndex={-1}
       aria-label={`${author.name}, ${f.time(m.createdAt)}`}
       className={cn(
-        'msg-row group/msg relative flex gap-3 rounded-xl px-3 transition-colors hover:bg-elevated/60 focus-within:bg-elevated/60',
+        'msg-row group/msg relative flex gap-3 rounded-xl px-3 outline-none transition-colors hover:bg-elevated/60 focus-within:bg-elevated/60',
         grouped ? 'py-0.5' : 'pt-2 pb-0.5',
-        mentioned && !deleted && 'bg-mention hover:bg-mention before:absolute before:inset-y-1 before:start-0 before:w-0.5 before:rounded-full before:bg-accent',
+        mentioned &&
+          !deleted &&
+          'bg-mention hover:bg-mention before:absolute before:inset-y-1 before:start-0 before:w-0.5 before:rounded-full before:bg-accent',
         p.highlighted && 'animate-pulse bg-mention',
       )}
     >
       <div className="w-9 shrink-0 pt-0.5">
         {grouped ? (
-          <span className="invisible block pt-1 text-center text-[10px] text-faint group-hover/msg:visible">{f.time(m.createdAt)}</span>
+          <span className="invisible block pt-1 text-center text-[10px] text-faint group-hover/msg:visible">
+            {f.time(m.createdAt)}
+          </span>
         ) : (
           <Avatar name={author.name} hue={author.hue} isBot={author.isBot} />
         )}
@@ -125,14 +150,18 @@ export const MessageItem = memo(function MessageItem(p: MessageItemProps) {
               {author.name}
             </span>
             {author.isBot && (
-              <span className="rounded bg-elevated-2 px-1 text-[10px] font-semibold uppercase text-muted">{t('message.bot')}</span>
+              <span className="rounded bg-elevated-2 px-1 text-[10px] font-semibold uppercase text-muted">
+                {t('message.bot')}
+              </span>
             )}
             <Tooltip label={f.dateTime(m.createdAt)}>
               <time dateTime={m.createdAt} className="shrink-0 text-xs text-muted">
                 {f.time(m.createdAt)}
               </time>
             </Tooltip>
-            {m.editedAt && !deleted && <span className="text-[11px] text-faint">{t('message.edited')}</span>}
+            {m.editedAt && !deleted && (
+              <span className="text-[11px] text-faint">{t('message.edited')}</span>
+            )}
             {m.pinned && !deleted && (
               <span className="inline-flex items-center gap-1 text-[11px] text-accent-ink">
                 <Pin className="size-3" /> {t('message.pinned')}
@@ -145,8 +174,16 @@ export const MessageItem = memo(function MessageItem(p: MessageItemProps) {
           <p className="text-sm italic text-faint">{t('message.deleted')}</p>
         ) : (
           <>
-            {m.text && <RichText text={m.text} resolveMention={p.resolveMention} className="text-[15px] leading-relaxed" />}
-            {grouped && m.editedAt && <span className="text-[11px] text-faint">{t('message.edited')}</span>}
+            {m.text && (
+              <RichText
+                text={m.text}
+                resolveMention={p.resolveMention}
+                className="text-[15px] leading-relaxed"
+              />
+            )}
+            {grouped && m.editedAt && (
+              <span className="text-[11px] text-faint">{t('message.edited')}</span>
+            )}
             <Attachments items={m.attachments} onOpenImage={p.onOpenImage} />
             {m.reactions.length > 0 && (
               <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -160,7 +197,9 @@ export const MessageItem = memo(function MessageItem(p: MessageItemProps) {
                         onClick={() => p.onToggleReaction(m, r.emoji)}
                         className={cn(
                           'inline-flex h-6 items-center gap-1.5 rounded-full border px-2 text-xs font-medium transition-colors',
-                          mine ? 'border-accent/60 bg-mention text-accent-ink' : 'border-line bg-elevated text-muted hover:border-line-strong',
+                          mine
+                            ? 'border-accent/60 bg-mention text-accent-ink'
+                            : 'border-line bg-elevated text-muted hover:border-line-strong',
                         )}
                       >
                         <span className="text-[13px] leading-none">{r.emoji}</span>
@@ -182,7 +221,9 @@ export const MessageItem = memo(function MessageItem(p: MessageItemProps) {
           >
             <CornerDownRight className="size-3.5 rtl:-scale-x-100" />
             {t('message.replies', { count: m.replyCount })}
-            {m.lastReplyAt && <span className="font-normal text-muted">· {f.relative(m.lastReplyAt)}</span>}
+            {m.lastReplyAt && (
+              <span className="font-normal text-muted">· {f.relative(m.lastReplyAt)}</span>
+            )}
           </button>
         )}
         {p.footer}
@@ -218,8 +259,13 @@ export const PendingItem = memo(function PendingItem({
   const f = useFormatters();
   const failed = pending.status === 'failed';
   return (
-    <article className={cn('msg-row flex gap-3 rounded-xl px-3', grouped ? 'py-0.5' : 'pt-2 pb-0.5')} aria-busy={!failed}>
-      <div className="w-9 shrink-0 pt-0.5">{!grouped && <Avatar name={author.name} hue={author.hue} isBot={author.isBot} />}</div>
+    <article
+      className={cn('msg-row flex gap-3 rounded-xl px-3', grouped ? 'py-0.5' : 'pt-2 pb-0.5')}
+      aria-busy={!failed}
+    >
+      <div className="w-9 shrink-0 pt-0.5">
+        {!grouped && <Avatar name={author.name} hue={author.hue} isBot={author.isBot} />}
+      </div>
       <div className={cn('min-w-0 flex-1', !failed && 'opacity-60')}>
         {!grouped && (
           <header className="flex items-baseline gap-2">
@@ -229,16 +275,33 @@ export const PendingItem = memo(function PendingItem({
             <time className="text-xs text-muted">{f.time(pending.createdAt)}</time>
           </header>
         )}
-        {pending.text && <RichText text={pending.text} resolveMention={resolveMention} className="text-[15px] leading-relaxed" />}
+        {pending.text && (
+          <RichText
+            text={pending.text}
+            resolveMention={resolveMention}
+            className="text-[15px] leading-relaxed"
+          />
+        )}
         <Attachments items={pending.attachments} onOpenImage={onOpenImage} />
         {failed ? (
-          <div role="alert" className="mt-1 flex flex-wrap items-center gap-2 text-xs text-danger-ink">
+          <div
+            role="alert"
+            className="mt-1 flex flex-wrap items-center gap-2 text-xs text-danger-ink"
+          >
             <AlertCircle className="size-3.5" />
             <span>{t('message.failed')}</span>
-            <button type="button" className="font-semibold underline" onClick={() => onRetry(pending)}>
+            <button
+              type="button"
+              className="font-semibold underline"
+              onClick={() => onRetry(pending)}
+            >
               {t('common.retry')}
             </button>
-            <button type="button" className="text-muted underline" onClick={() => onDiscard(pending)}>
+            <button
+              type="button"
+              className="text-muted underline"
+              onClick={() => onDiscard(pending)}
+            >
               {t('message.discard')}
             </button>
           </div>

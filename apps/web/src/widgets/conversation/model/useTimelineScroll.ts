@@ -51,7 +51,10 @@ export function useTimelineScroll(o: Options): TimelineScroll {
   const [newBelow, setNewBelow] = useState(0);
   const atBottomRef = useRef(true);
   const anchor = useRef<{ key: string; delta: number } | null>(null);
-  const prev = useRef<{ first?: string; last?: string; cid: string; len: number }>({ cid: '', len: 0 });
+  const prev = useRef<{ first?: string; last?: string; cid: string; len: number }>({
+    cid: '',
+    len: 0,
+  });
   const optsRef = useRef(o);
   optsRef.current = o;
 
@@ -73,7 +76,8 @@ export function useTimelineScroll(o: Options): TimelineScroll {
       let frames = 0;
       const pin = () => {
         const target = el.scrollHeight - el.clientHeight;
-        if (Math.abs(el.scrollTop - target) > 1) el.scrollTo({ top: target, behavior: smooth && frames === 0 ? 'smooth' : 'auto' });
+        if (Math.abs(el.scrollTop - target) > 1)
+          el.scrollTo({ top: target, behavior: smooth && frames === 0 ? 'smooth' : 'auto' });
         if (++frames < 4) requestAnimationFrame(pin);
       };
       requestAnimationFrame(pin);
@@ -92,6 +96,18 @@ export function useTimelineScroll(o: Options): TimelineScroll {
     [virtualizer],
   );
 
+  /** Re-derives "is the user at the bottom" from real metrics (content may change without a scroll event). */
+  const measureBottom = useCallback(() => {
+    const el = parentRef.current;
+    if (!el) return;
+    const bottom = el.scrollHeight - el.scrollTop - el.clientHeight < 96;
+    if (bottom !== atBottomRef.current) {
+      atBottomRef.current = bottom;
+      setAtBottom(bottom);
+    }
+    if (bottom) setNewBelow(0);
+  }, []);
+
   // New conversation: forget everything about the previous one.
   useLayoutEffect(() => {
     setPositioned(false);
@@ -104,19 +120,40 @@ export function useTimelineScroll(o: Options): TimelineScroll {
 
   // Initial position, once the first page is rendered.
   useLayoutEffect(() => {
-    if (positioned || !o.ready || o.items.length === 0 || prev.current.cid !== o.conversationId) return;
-    const divider = o.initialTarget === 'divider' ? o.items.findIndex((i) => i.kind === 'divider') : -1;
+    if (positioned || !o.ready || o.items.length === 0 || prev.current.cid !== o.conversationId)
+      return;
+    const divider =
+      o.initialTarget === 'divider' ? o.items.findIndex((i) => i.kind === 'divider') : -1;
     if (divider > 0) {
       virtualizer.scrollToIndex(Math.max(divider - 1, 0), { align: 'start' });
-      requestAnimationFrame(() => virtualizer.scrollToIndex(Math.max(divider - 1, 0), { align: 'start' }));
+      requestAnimationFrame(() =>
+        virtualizer.scrollToIndex(Math.max(divider - 1, 0), { align: 'start' }),
+      );
       atBottomRef.current = false;
       setAtBottom(false);
     } else {
       scrollToBottom();
     }
-    prev.current = { first: o.items[0]?.key, last: o.items[o.items.length - 1]?.key, cid: o.conversationId, len: o.items.length };
-    requestAnimationFrame(() => setPositioned(true));
-  }, [positioned, o.ready, o.items, o.conversationId, o.initialTarget, virtualizer, scrollToBottom]);
+    prev.current = {
+      first: o.items[0]?.key,
+      last: o.items[o.items.length - 1]?.key,
+      cid: o.conversationId,
+      len: o.items.length,
+    };
+    requestAnimationFrame(() => {
+      setPositioned(true);
+      requestAnimationFrame(measureBottom);
+    });
+  }, [
+    positioned,
+    o.ready,
+    o.items,
+    o.conversationId,
+    o.initialTarget,
+    virtualizer,
+    scrollToBottom,
+    measureBottom,
+  ]);
 
   // Items changed after the initial position: stick to bottom, count unseen, or keep the anchor.
   useLayoutEffect(() => {
@@ -125,13 +162,18 @@ export function useTimelineScroll(o: Options): TimelineScroll {
     const last = o.items[o.items.length - 1]?.key;
     const p = prev.current;
     const appended = last !== undefined && last !== p.last;
-    const prepended = first !== undefined && p.first !== undefined && first !== p.first && o.items.some((i) => i.key === p.first);
+    const prepended =
+      first !== undefined &&
+      p.first !== undefined &&
+      first !== p.first &&
+      o.items.some((i) => i.key === p.first);
 
     if (prepended && anchor.current) {
       const idx = o.items.findIndex((i) => i.key === anchor.current!.key);
       if (idx >= 0) {
         const item = virtualizer.measurementsCache[idx];
-        if (item && parentRef.current) parentRef.current.scrollTop = item.start - anchor.current.delta;
+        if (item && parentRef.current)
+          parentRef.current.scrollTop = item.start - anchor.current.delta;
       }
     } else if (appended) {
       if (atBottomRef.current) scrollToBottom();
@@ -141,7 +183,9 @@ export function useTimelineScroll(o: Options): TimelineScroll {
       }
     }
     prev.current = { first, last, cid: o.conversationId, len: o.items.length };
-  }, [o.items, o.conversationId, positioned, virtualizer, scrollToBottom]);
+    const raf = requestAnimationFrame(() => requestAnimationFrame(measureBottom));
+    return () => cancelAnimationFrame(raf);
+  }, [o.items, o.conversationId, positioned, virtualizer, scrollToBottom, measureBottom]);
 
   // Keep the bottom pinned when row heights change (images load, fonts swap) while stuck to the bottom.
   useEffect(() => {
@@ -149,12 +193,22 @@ export function useTimelineScroll(o: Options): TimelineScroll {
     if (!el || typeof ResizeObserver === 'undefined') return;
     const inner = el.firstElementChild;
     if (!inner) return;
+    let raf = 0;
     const ro = new ResizeObserver(() => {
-      if (atBottomRef.current && positioned) el.scrollTop = el.scrollHeight;
+      // Defer: writing scrollTop inside the callback triggers "ResizeObserver loop" errors.
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        if (!positioned) return;
+        if (atBottomRef.current) el.scrollTop = el.scrollHeight;
+        else measureBottom();
+      });
     });
     ro.observe(inner);
-    return () => ro.disconnect();
-  }, [positioned, o.conversationId]);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [positioned, o.conversationId, measureBottom]);
 
   // Scroll handler: bottom detection, anchor tracking, paging.
   useEffect(() => {
@@ -171,7 +225,9 @@ export function useTimelineScroll(o: Options): TimelineScroll {
           setAtBottom(bottom);
         }
         if (bottom) setNewBelow(0);
-        const vi = virtualizer.getVirtualItems().find((v) => v.end > el.scrollTop) ?? virtualizer.getVirtualItems()[0];
+        const vi =
+          virtualizer.getVirtualItems().find((v) => v.end > el.scrollTop) ??
+          virtualizer.getVirtualItems()[0];
         const item = vi && optsRef.current.items[vi.index];
         if (vi && item) anchor.current = { key: item.key, delta: vi.start - el.scrollTop };
         const cur = optsRef.current;
@@ -189,7 +245,8 @@ export function useTimelineScroll(o: Options): TimelineScroll {
   // A short first page that does not fill the viewport still needs older messages.
   useEffect(() => {
     const el = parentRef.current;
-    if (positioned && el && el.scrollHeight <= el.clientHeight + 40 && o.hasMoreOlder) o.loadOlder();
+    if (positioned && el && el.scrollHeight <= el.clientHeight + 40 && o.hasMoreOlder)
+      o.loadOlder();
   }, [positioned, o.items.length, o.hasMoreOlder, o]);
 
   return { parentRef, virtualizer, atBottom, positioned, newBelow, scrollToBottom, scrollToKey };

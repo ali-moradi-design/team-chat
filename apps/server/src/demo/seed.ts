@@ -80,7 +80,7 @@ export async function seedDemo(c: Container, logger: Logger): Promise<void> {
           userIds: by.map((h) => new Types.ObjectId(id(h))),
         })),
         mentions: mentions.map((x) => new Types.ObjectId(x)),
-        mentionsAll: /@channel\b/.test(m.text),
+        mentionsAll: /@channel\b/.test(m.text.replace(/`[^`]*`/g, '')),
         pinned: !!m.pinned,
         ...(m.pinned ? { pinnedAt: created } : {}),
         replyCount: m.replies?.length ?? 0,

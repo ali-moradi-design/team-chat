@@ -13,8 +13,12 @@ interface DialogsState {
   addPeople: string | null;
   lightbox: Attachment | null;
   sidebarOpen: boolean;
-  open: (k: 'quick' | 'createChannel' | 'newDm' | 'browse' | 'shortcuts' | 'prefs' | 'admin') => void;
-  close: (k: 'quick' | 'createChannel' | 'newDm' | 'browse' | 'shortcuts' | 'prefs' | 'admin') => void;
+  open: (
+    k: 'quick' | 'createChannel' | 'newDm' | 'browse' | 'shortcuts' | 'prefs' | 'admin',
+  ) => void;
+  close: (
+    k: 'quick' | 'createChannel' | 'newDm' | 'browse' | 'shortcuts' | 'prefs' | 'admin',
+  ) => void;
   setAddPeople: (conversationId: string | null) => void;
   setLightbox: (a: Attachment | null) => void;
   setSidebar: (open: boolean) => void;

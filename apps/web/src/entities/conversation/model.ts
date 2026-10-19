@@ -43,7 +43,13 @@ export const useConversations = create<ConversationsState>((set) => ({
       if (!cur || m.threadRootId) return s;
       const mine = m.authorId === meId;
       const mentioned = m.mentions.includes(meId) || m.mentionsAll;
-      const counts = mine || viewing ? {} : { unreadCount: Math.min(cur.unreadCount + 1, 99), mentionCount: cur.mentionCount + (mentioned ? 1 : 0) };
+      const counts =
+        mine || viewing
+          ? {}
+          : {
+              unreadCount: Math.min(cur.unreadCount + 1, 99),
+              mentionCount: cur.mentionCount + (mentioned ? 1 : 0),
+            };
       return {
         byId: {
           ...s.byId,
@@ -51,8 +57,15 @@ export const useConversations = create<ConversationsState>((set) => ({
             ...cur,
             ...counts,
             lastMessageAt: m.createdAt,
-            lastMessage: { id: m.id, authorId: m.authorId, text: toPlainPreview(m.text || m.attachments[0]?.name || '', 140), createdAt: m.createdAt },
-            ...(mine || viewing ? { lastReadMessageId: m.id } : {}),
+            lastMessage: {
+              id: m.id,
+              authorId: m.authorId,
+              text: toPlainPreview(m.text || m.attachments[0]?.name || '', 140),
+              createdAt: m.createdAt,
+            },
+            // Only the author's own message moves the pointer locally; while viewing, the read
+            // receipt (sent by the timeline) moves it, so the server stays in sync.
+            ...(mine ? { lastReadMessageId: m.id } : {}),
           },
         },
       };
@@ -61,15 +74,26 @@ export const useConversations = create<ConversationsState>((set) => ({
     set((s) => {
       const cur = s.byId[conversationId];
       if (!cur) return s;
-      if (cur.unreadCount === 0 && cur.mentionCount === 0 && cur.lastReadMessageId && cur.lastReadMessageId >= messageId) return s;
+      if (
+        cur.unreadCount === 0 &&
+        cur.mentionCount === 0 &&
+        cur.lastReadMessageId &&
+        cur.lastReadMessageId >= messageId
+      )
+        return s;
+      const pointer =
+        cur.lastReadMessageId && cur.lastReadMessageId > messageId
+          ? cur.lastReadMessageId
+          : messageId;
+      // A receipt for an older message (it raced a newer arrival) must not wipe the new unread count.
+      const coversLatest = !cur.lastMessage || pointer >= cur.lastMessage.id;
       return {
         byId: {
           ...s.byId,
           [conversationId]: {
             ...cur,
-            unreadCount: 0,
-            mentionCount: 0,
-            lastReadMessageId: cur.lastReadMessageId && cur.lastReadMessageId > messageId ? cur.lastReadMessageId : messageId,
+            ...(coversLatest ? { unreadCount: 0, mentionCount: 0 } : {}),
+            lastReadMessageId: pointer,
           },
         },
       };
@@ -80,7 +104,12 @@ export const useConversations = create<ConversationsState>((set) => ({
       if (!cur) return s;
       const prev = cur.peerReads?.[userId];
       if (prev && prev >= messageId) return s;
-      return { byId: { ...s.byId, [conversationId]: { ...cur, peerReads: { ...cur.peerReads, [userId]: messageId } } } };
+      return {
+        byId: {
+          ...s.byId,
+          [conversationId]: { ...cur, peerReads: { ...cur.peerReads, [userId]: messageId } },
+        },
+      };
     }),
   setMuted: (conversationId, muted) =>
     set((s) => {
@@ -98,8 +127,12 @@ export function groupConversations(byId: Record<string, ConversationSummary>): {
   dms: ConversationSummary[];
 } {
   const all = Object.values(byId);
-  const channels = all.filter((c) => c.type === 'channel').sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '', undefined, { sensitivity: 'base' }));
-  const dms = all.filter((c) => c.type === 'dm').sort((a, b) => sortKey(b).localeCompare(sortKey(a)));
+  const channels = all
+    .filter((c) => c.type === 'channel')
+    .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '', undefined, { sensitivity: 'base' }));
+  const dms = all
+    .filter((c) => c.type === 'dm')
+    .sort((a, b) => sortKey(b).localeCompare(sortKey(a)));
   return { channels, dms };
 }
 
@@ -116,7 +149,9 @@ export function conversationTitle(
   return others.map((m) => nameOf(m.userId)).join(', ');
 }
 
-export const totalUnread = (byId: Record<string, ConversationSummary>): { unread: number; mentions: number } => {
+export const totalUnread = (
+  byId: Record<string, ConversationSummary>,
+): { unread: number; mentions: number } => {
   let unread = 0;
   let mentions = 0;
   for (const c of Object.values(byId)) {

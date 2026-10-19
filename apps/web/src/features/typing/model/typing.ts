@@ -18,7 +18,12 @@ export const useTyping = create<TypingState>((set) => ({
         const { [userId]: _x, ...rest } = cur;
         return { byConversation: { ...s.byConversation, [conversationId]: rest } };
       }
-      return { byConversation: { ...s.byConversation, [conversationId]: { ...cur, [userId]: Date.now() + LIMITS.typingTtlMs } } };
+      return {
+        byConversation: {
+          ...s.byConversation,
+          [conversationId]: { ...cur, [userId]: Date.now() + LIMITS.typingTtlMs },
+        },
+      };
     }),
   prune: () =>
     set((s) => {

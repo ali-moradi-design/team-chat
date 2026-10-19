@@ -5,7 +5,10 @@ import { en } from './locales/en';
 
 export type Resources = typeof en;
 
-const loaders: Record<Lang, () => Promise<{ default: Resources } | { fa: Resources } | { en: Resources }>> = {
+const loaders: Record<
+  Lang,
+  () => Promise<{ default: Resources } | { fa: Resources } | { en: Resources }>
+> = {
   en: async () => ({ default: en }),
   fa: () => import('./locales/fa'),
 };
@@ -13,7 +16,8 @@ const loaders: Record<Lang, () => Promise<{ default: Resources } | { fa: Resourc
 async function loadBundle(lang: Lang): Promise<void> {
   if (i18next.hasResourceBundle(lang, 'translation')) return;
   const mod = await loaders[lang]();
-  const bundle = 'default' in mod ? mod.default : lang in mod ? (mod as Record<string, Resources>)[lang]! : en;
+  const bundle =
+    'default' in mod ? mod.default : lang in mod ? (mod as Record<string, Resources>)[lang]! : en;
   i18next.addResourceBundle(lang, 'translation', bundle, true, true);
 }
 

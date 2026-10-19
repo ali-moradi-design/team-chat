@@ -6,7 +6,12 @@ import { getSocket } from '@/shared/socket/client';
  * Marks the newest loaded message as read once the user is really looking at the bottom of the
  * conversation (tab visible and focused). Debounced so scroll jitter does not spam the server.
  */
-export function useMarkRead(conversationId: string, newestId: string | undefined, atBottom: boolean, positioned: boolean): void {
+export function useMarkRead(
+  conversationId: string,
+  newestId: string | undefined,
+  atBottom: boolean,
+  positioned: boolean,
+): void {
   const lastSent = useRef<string>('');
 
   useEffect(() => {
@@ -19,7 +24,11 @@ export function useMarkRead(conversationId: string, newestId: string | undefined
     const attempt = () => {
       const conv = useConversations.getState().byId[conversationId];
       if (!conv) return;
-      const behind = conv.unreadCount > 0 || conv.mentionCount > 0 || !conv.lastReadMessageId || conv.lastReadMessageId < newestId;
+      const behind =
+        conv.unreadCount > 0 ||
+        conv.mentionCount > 0 ||
+        !conv.lastReadMessageId ||
+        conv.lastReadMessageId < newestId;
       if (!behind || lastSent.current === newestId) return;
       if (document.visibilityState !== 'visible' || !document.hasFocus()) return;
       lastSent.current = newestId;

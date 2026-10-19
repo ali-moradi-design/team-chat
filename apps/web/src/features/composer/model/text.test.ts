@@ -21,7 +21,7 @@ describe('mentions', () => {
   it('inserts the handle and moves the caret', () => {
     const q = findMentionQuery('hi @sa there', 6)!;
     const edit = insertMention('hi @sa there', q, 6, 'sara');
-    expect(edit.value).toBe('hi @sara  there');
-    expect(edit.selectionStart).toBe(10);
+    expect(edit.value).toBe('hi @sara there');
+    expect(edit.selectionStart).toBe(9);
   });
 });

@@ -5,9 +5,17 @@ export interface Edit {
 }
 
 /** Wraps the selection with `before`/`after` (toggles off when already wrapped). */
-export function wrapSelection(value: string, start: number, end: number, before: string, after = before): Edit {
+export function wrapSelection(
+  value: string,
+  start: number,
+  end: number,
+  before: string,
+  after = before,
+): Edit {
   const selected = value.slice(start, end);
-  const hasWrap = value.slice(start - before.length, start) === before && value.slice(end, end + after.length) === after;
+  const hasWrap =
+    value.slice(start - before.length, start) === before &&
+    value.slice(end, end + after.length) === after;
   if (hasWrap) {
     return {
       value: value.slice(0, start - before.length) + selected + value.slice(end + after.length),
@@ -37,13 +45,18 @@ export function findMentionQuery(value: string, caret: number): MentionQuery | n
 }
 
 export function insertMention(value: string, q: MentionQuery, caret: number, handle: string): Edit {
-  const insert = `@${handle} `;
+  const needsSpace = !/^\s/.test(value.slice(caret));
+  const insert = `@${handle}${needsSpace ? ' ' : ''}`;
   const next = value.slice(0, q.from) + insert + value.slice(caret);
-  const pos = q.from + insert.length;
+  const pos = q.from + insert.length + (needsSpace ? 0 : 1);
   return { value: next, selectionStart: pos, selectionEnd: pos };
 }
 
 export function insertAt(value: string, start: number, end: number, text: string): Edit {
   const pos = start + text.length;
-  return { value: value.slice(0, start) + text + value.slice(end), selectionStart: pos, selectionEnd: pos };
+  return {
+    value: value.slice(0, start) + text + value.slice(end),
+    selectionStart: pos,
+    selectionEnd: pos,
+  };
 }

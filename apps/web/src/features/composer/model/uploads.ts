@@ -24,7 +24,11 @@ export function useUploads() {
   const [items, setItems] = useState<UploadItem[]>([]);
   const aborts = useRef(new Map<string, AbortController>());
 
-  const patch = useCallback((id: string, p: Partial<UploadItem>) => setItems((cur) => cur.map((i) => (i.id === id ? { ...i, ...p } : i))), []);
+  const patch = useCallback(
+    (id: string, p: Partial<UploadItem>) =>
+      setItems((cur) => cur.map((i) => (i.id === id ? { ...i, ...p } : i))),
+    [],
+  );
 
   const add = useCallback(
     (files: File[]) => {
@@ -35,7 +39,16 @@ export function useUploads() {
         const previewUrl = isImage && !error ? URL.createObjectURL(file) : undefined;
         setItems((cur) => [
           ...cur,
-          { id, name: file.name, size: file.size, isImage, ...(previewUrl ? { previewUrl } : {}), progress: 0, status: error ? 'error' : 'uploading', ...(error ? { error } : {}) },
+          {
+            id,
+            name: file.name,
+            size: file.size,
+            isImage,
+            ...(previewUrl ? { previewUrl } : {}),
+            progress: 0,
+            status: error ? 'error' : 'uploading',
+            ...(error ? { error } : {}),
+          },
         ]);
         if (error) continue;
         const ctl = new AbortController();

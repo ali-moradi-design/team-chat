@@ -1,6 +1,14 @@
 import { cn } from '../lib/cn';
 
-export function CountBadge({ count, mention, className }: { count: number; mention?: boolean; className?: string }) {
+export function CountBadge({
+  count,
+  mention,
+  className,
+}: {
+  count: number;
+  mention?: boolean;
+  className?: string;
+}) {
   if (count <= 0) return null;
   return (
     <span

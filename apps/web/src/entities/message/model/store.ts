@@ -1,5 +1,12 @@
 import { create } from 'zustand';
-import type { Ack, Attachment, HistoryResponse, Message, Reaction, ThreadResponse } from '@team-chat/shared';
+import type {
+  Ack,
+  Attachment,
+  HistoryResponse,
+  Message,
+  Reaction,
+  ThreadResponse,
+} from '@team-chat/shared';
 import { LIMITS } from '@team-chat/shared';
 import { api } from '@/shared/api/http';
 import { clientId } from '@/shared/lib/id';
@@ -63,11 +70,20 @@ interface MessagesState {
   receive: (m: Message) => void;
   update: (m: Message) => void;
   setReactions: (conversationId: string, messageId: string, reactions: Reaction[]) => void;
-  setThreadStats: (conversationId: string, rootId: string, replyCount: number, lastReplyAt: string) => void;
+  setThreadStats: (
+    conversationId: string,
+    rootId: string,
+    replyCount: number,
+    lastReplyAt: string,
+  ) => void;
   clear: () => void;
 }
 
-const patchTimeline = (s: MessagesState, id: string, fn: (t: Timeline) => Timeline): Partial<MessagesState> => {
+const patchTimeline = (
+  s: MessagesState,
+  id: string,
+  fn: (t: Timeline) => Timeline,
+): Partial<MessagesState> => {
   const cur = s.timelines[id];
   return cur ? { timelines: { ...s.timelines, [id]: fn(cur) } } : s;
 };
@@ -96,19 +112,44 @@ export const useMessages = create<MessagesState>((set, get) => ({
       await catchUp(conversationId);
       return;
     }
-    set((s) => ({ timelines: evict({ ...s.timelines, [conversationId]: { ...(existing ?? emptyTimeline()), status: existing?.ids.length ? 'ready' : 'loading', touched: Date.now() } }, conversationId) }));
+    set((s) => ({
+      timelines: evict(
+        {
+          ...s.timelines,
+          [conversationId]: {
+            ...(existing ?? emptyTimeline()),
+            status: existing?.ids.length ? 'ready' : 'loading',
+            touched: Date.now(),
+          },
+        },
+        conversationId,
+      ),
+    }));
     try {
       const page = await fetchPage(conversationId, `limit=${LIMITS.historyPageSize}`);
       set((s) =>
         patchTimeline(s, conversationId, (t) => {
           // Keep anything that arrived over the socket while the request was in flight.
-          const base = existing?.hasMoreNewer ? { ids: [], byId: {} } : { ids: t.ids, byId: t.byId };
+          const base = existing?.hasMoreNewer
+            ? { ids: [], byId: {} }
+            : { ids: t.ids, byId: t.byId };
           const merged = mergeAscending(base.ids, base.byId, page.messages);
-          return { ...t, ...merged, hasMoreOlder: page.hasMoreOlder, hasMoreNewer: false, status: 'ready' };
+          return {
+            ...t,
+            ...merged,
+            hasMoreOlder: page.hasMoreOlder,
+            hasMoreNewer: false,
+            status: 'ready',
+          };
         }),
       );
     } catch {
-      set((s) => patchTimeline(s, conversationId, (t) => ({ ...t, status: t.ids.length ? 'ready' : 'error' })));
+      set((s) =>
+        patchTimeline(s, conversationId, (t) => ({
+          ...t,
+          status: t.ids.length ? 'ready' : 'error',
+        })),
+      );
     }
   },
 
@@ -117,7 +158,10 @@ export const useMessages = create<MessagesState>((set, get) => ({
     if (!t || t.loadingOlder || !t.hasMoreOlder || t.ids.length === 0) return;
     set((s) => patchTimeline(s, conversationId, (x) => ({ ...x, loadingOlder: true })));
     try {
-      const page = await fetchPage(conversationId, `limit=${LIMITS.historyPageSize}&beforeId=${t.ids[0]}`);
+      const page = await fetchPage(
+        conversationId,
+        `limit=${LIMITS.historyPageSize}&beforeId=${t.ids[0]}`,
+      );
       set((s) =>
         patchTimeline(s, conversationId, (x) => ({
           ...x,
@@ -136,8 +180,17 @@ export const useMessages = create<MessagesState>((set, get) => ({
     const last = t?.ids[t.ids.length - 1];
     if (!t || !t.hasMoreNewer || !last) return;
     try {
-      const page = await fetchPage(conversationId, `limit=${LIMITS.historyPageSize}&afterId=${last}`);
-      set((s) => patchTimeline(s, conversationId, (x) => ({ ...x, ...mergeAscending(x.ids, x.byId, page.messages), hasMoreNewer: page.hasMoreNewer })));
+      const page = await fetchPage(
+        conversationId,
+        `limit=${LIMITS.historyPageSize}&afterId=${last}`,
+      );
+      set((s) =>
+        patchTimeline(s, conversationId, (x) => ({
+          ...x,
+          ...mergeAscending(x.ids, x.byId, page.messages),
+          hasMoreNewer: page.hasMoreNewer,
+        })),
+      );
     } catch {
       /* retried on the next scroll */
     }
@@ -146,8 +199,16 @@ export const useMessages = create<MessagesState>((set, get) => ({
   async jumpTo(conversationId, messageId) {
     const t = get().timelines[conversationId];
     if (t?.byId[messageId]) return;
-    set((s) => ({ timelines: { ...s.timelines, [conversationId]: { ...emptyTimeline(), pending: t?.pending ?? [] } } }));
-    const page = await fetchPage(conversationId, `limit=${LIMITS.historyPageSize}&aroundId=${messageId}`);
+    set((s) => ({
+      timelines: {
+        ...s.timelines,
+        [conversationId]: { ...emptyTimeline(), pending: t?.pending ?? [] },
+      },
+    }));
+    const page = await fetchPage(
+      conversationId,
+      `limit=${LIMITS.historyPageSize}&aroundId=${messageId}`,
+    );
     set((s) =>
       patchTimeline(s, conversationId, (x) => ({
         ...x,
@@ -162,20 +223,53 @@ export const useMessages = create<MessagesState>((set, get) => ({
   async jumpToLatest(conversationId) {
     set((s) => {
       const cur = s.timelines[conversationId];
-      return cur ? { timelines: { ...s.timelines, [conversationId]: { ...emptyTimeline(), pending: cur.pending } } } : s;
+      return cur
+        ? {
+            timelines: {
+              ...s.timelines,
+              [conversationId]: { ...emptyTimeline(), pending: cur.pending },
+            },
+          }
+        : s;
     });
     await get().openConversation(conversationId);
   },
 
   async openThread(rootId) {
     set((s) => ({
-      threads: { ...s.threads, [rootId]: { root: s.threads[rootId]?.root ?? null, replies: s.threads[rootId]?.replies ?? [], pending: s.threads[rootId]?.pending ?? [], status: s.threads[rootId]?.root ? 'ready' : 'loading' } },
+      threads: {
+        ...s.threads,
+        [rootId]: {
+          root: s.threads[rootId]?.root ?? null,
+          replies: s.threads[rootId]?.replies ?? [],
+          pending: s.threads[rootId]?.pending ?? [],
+          status: s.threads[rootId]?.root ? 'ready' : 'loading',
+        },
+      },
     }));
     try {
       const res = await api<ThreadResponse>(`/api/messages/${rootId}/thread`);
-      set((s) => ({ threads: { ...s.threads, [rootId]: { root: res.root, replies: res.replies, pending: s.threads[rootId]?.pending ?? [], status: 'ready' } } }));
+      set((s) => ({
+        threads: {
+          ...s.threads,
+          [rootId]: {
+            root: res.root,
+            replies: res.replies,
+            pending: s.threads[rootId]?.pending ?? [],
+            status: 'ready',
+          },
+        },
+      }));
     } catch {
-      set((s) => ({ threads: { ...s.threads, [rootId]: { ...(s.threads[rootId] ?? { root: null, replies: [], pending: [] }), status: 'error' } } }));
+      set((s) => ({
+        threads: {
+          ...s.threads,
+          [rootId]: {
+            ...(s.threads[rootId] ?? { root: null, replies: [], pending: [] }),
+            status: 'error',
+          },
+        },
+      }));
     }
   },
 
@@ -188,15 +282,27 @@ export const useMessages = create<MessagesState>((set, get) => ({
         return {
           threads: {
             ...s.threads,
-            [m.threadRootId]: { ...th, replies, pending: th.pending.filter((p) => p.clientMsgId !== m.clientMsgId) },
+            [m.threadRootId]: {
+              ...th,
+              replies,
+              pending: th.pending.filter((p) => p.clientMsgId !== m.clientMsgId),
+            },
           },
         };
       }
       const t = s.timelines[m.conversationId];
       if (!t) return s;
-      const pending = m.clientMsgId ? t.pending.filter((p) => p.clientMsgId !== m.clientMsgId) : t.pending;
-      if (t.hasMoreNewer) return { timelines: { ...s.timelines, [m.conversationId]: { ...t, pending } } };
-      return { timelines: { ...s.timelines, [m.conversationId]: { ...t, ...mergeAscending(t.ids, t.byId, [m]), pending } } };
+      const pending = m.clientMsgId
+        ? t.pending.filter((p) => p.clientMsgId !== m.clientMsgId)
+        : t.pending;
+      if (t.hasMoreNewer)
+        return { timelines: { ...s.timelines, [m.conversationId]: { ...t, pending } } };
+      return {
+        timelines: {
+          ...s.timelines,
+          [m.conversationId]: { ...t, ...mergeAscending(t.ids, t.byId, [m]), pending },
+        },
+      };
     });
   },
 
@@ -204,10 +310,18 @@ export const useMessages = create<MessagesState>((set, get) => ({
     set((s) => {
       const next: Partial<MessagesState> = {};
       const t = s.timelines[m.conversationId];
-      if (t?.byId[m.id]) next.timelines = { ...s.timelines, [m.conversationId]: { ...t, byId: { ...t.byId, [m.id]: m } } };
+      if (t?.byId[m.id])
+        next.timelines = {
+          ...s.timelines,
+          [m.conversationId]: { ...t, byId: { ...t.byId, [m.id]: m } },
+        };
       if (m.threadRootId) {
         const th = s.threads[m.threadRootId];
-        if (th) next.threads = { ...s.threads, [m.threadRootId]: { ...th, replies: th.replies.map((r) => (r.id === m.id ? m : r)) } };
+        if (th)
+          next.threads = {
+            ...s.threads,
+            [m.threadRootId]: { ...th, replies: th.replies.map((r) => (r.id === m.id ? m : r)) },
+          };
       } else if (s.threads[m.id]) {
         next.threads = { ...s.threads, [m.id]: { ...s.threads[m.id]!, root: m } };
       }
@@ -220,7 +334,11 @@ export const useMessages = create<MessagesState>((set, get) => ({
       const next: Partial<MessagesState> = {};
       const t = s.timelines[conversationId];
       const m = t?.byId[messageId];
-      if (t && m) next.timelines = { ...s.timelines, [conversationId]: { ...t, byId: { ...t.byId, [messageId]: { ...m, reactions } } } };
+      if (t && m)
+        next.timelines = {
+          ...s.timelines,
+          [conversationId]: { ...t, byId: { ...t.byId, [messageId]: { ...m, reactions } } },
+        };
       const threads = { ...s.threads };
       let changed = false;
       for (const [rootId, th] of Object.entries(s.threads)) {
@@ -228,7 +346,10 @@ export const useMessages = create<MessagesState>((set, get) => ({
           threads[rootId] = { ...th, root: { ...th.root, reactions } };
           changed = true;
         } else if (th.replies.some((r) => r.id === messageId)) {
-          threads[rootId] = { ...th, replies: th.replies.map((r) => (r.id === messageId ? { ...r, reactions } : r)) };
+          threads[rootId] = {
+            ...th,
+            replies: th.replies.map((r) => (r.id === messageId ? { ...r, reactions } : r)),
+          };
           changed = true;
         }
       }
@@ -242,9 +363,20 @@ export const useMessages = create<MessagesState>((set, get) => ({
       const next: Partial<MessagesState> = {};
       const t = s.timelines[conversationId];
       const m = t?.byId[rootId];
-      if (t && m) next.timelines = { ...s.timelines, [conversationId]: { ...t, byId: { ...t.byId, [rootId]: { ...m, replyCount, lastReplyAt } } } };
+      if (t && m)
+        next.timelines = {
+          ...s.timelines,
+          [conversationId]: {
+            ...t,
+            byId: { ...t.byId, [rootId]: { ...m, replyCount, lastReplyAt } },
+          },
+        };
       const th = s.threads[rootId];
-      if (th?.root) next.threads = { ...s.threads, [rootId]: { ...th, root: { ...th.root, replyCount, lastReplyAt } } };
+      if (th?.root)
+        next.threads = {
+          ...s.threads,
+          [rootId]: { ...th, root: { ...th.root, replyCount, lastReplyAt } },
+        };
       return next;
     });
   },
@@ -266,9 +398,17 @@ export async function catchUp(conversationId: string): Promise<void> {
   try {
     let cursor = last;
     for (let i = 0; i < 4; i++) {
-      const page = await fetchPage(conversationId, `limit=${LIMITS.historyMaxPageSize}&afterId=${cursor}`);
+      const page = await fetchPage(
+        conversationId,
+        `limit=${LIMITS.historyMaxPageSize}&afterId=${cursor}`,
+      );
       if (page.messages.length === 0) return;
-      useMessages.setState((s) => patchTimeline(s, conversationId, (x) => ({ ...x, ...mergeAscending(x.ids, x.byId, page.messages) })));
+      useMessages.setState((s) =>
+        patchTimeline(s, conversationId, (x) => ({
+          ...x,
+          ...mergeAscending(x.ids, x.byId, page.messages),
+        })),
+      );
       cursor = page.messages[page.messages.length - 1]!.id;
       if (!page.hasMoreNewer) return;
     }
@@ -288,11 +428,27 @@ function addPending(p: PendingMessage): void {
     if (p.threadRootId) {
       const th = s.threads[p.threadRootId];
       if (!th) return s;
-      return { threads: { ...s.threads, [p.threadRootId]: { ...th, pending: [...th.pending.filter((x) => x.clientMsgId !== p.clientMsgId), p] } } };
+      return {
+        threads: {
+          ...s.threads,
+          [p.threadRootId]: {
+            ...th,
+            pending: [...th.pending.filter((x) => x.clientMsgId !== p.clientMsgId), p],
+          },
+        },
+      };
     }
     const t = s.timelines[p.conversationId];
     if (!t) return s;
-    return { timelines: { ...s.timelines, [p.conversationId]: { ...t, pending: [...t.pending.filter((x) => x.clientMsgId !== p.clientMsgId), p] } } };
+    return {
+      timelines: {
+        ...s.timelines,
+        [p.conversationId]: {
+          ...t,
+          pending: [...t.pending.filter((x) => x.clientMsgId !== p.clientMsgId), p],
+        },
+      },
+    };
   });
 }
 
@@ -304,10 +460,30 @@ function removePending(p: PendingMessage): void {
   useMessages.setState((s) => {
     if (p.threadRootId) {
       const th = s.threads[p.threadRootId];
-      return th ? { threads: { ...s.threads, [p.threadRootId]: { ...th, pending: th.pending.filter((x) => x.clientMsgId !== p.clientMsgId) } } } : s;
+      return th
+        ? {
+            threads: {
+              ...s.threads,
+              [p.threadRootId]: {
+                ...th,
+                pending: th.pending.filter((x) => x.clientMsgId !== p.clientMsgId),
+              },
+            },
+          }
+        : s;
     }
     const t = s.timelines[p.conversationId];
-    return t ? { timelines: { ...s.timelines, [p.conversationId]: { ...t, pending: t.pending.filter((x) => x.clientMsgId !== p.clientMsgId) } } } : s;
+    return t
+      ? {
+          timelines: {
+            ...s.timelines,
+            [p.conversationId]: {
+              ...t,
+              pending: t.pending.filter((x) => x.clientMsgId !== p.clientMsgId),
+            },
+          },
+        }
+      : s;
   });
 }
 
@@ -369,7 +545,10 @@ export function discardPending(p: PendingMessage): void {
 /** Re-sends everything that was still in flight when the connection dropped. */
 export function flushPending(): void {
   const { timelines, threads } = useMessages.getState();
-  const all = [...Object.values(timelines).flatMap((t) => t.pending), ...Object.values(threads).flatMap((t) => t.pending)];
+  const all = [
+    ...Object.values(timelines).flatMap((t) => t.pending),
+    ...Object.values(threads).flatMap((t) => t.pending),
+  ];
   for (const p of all) transmit(p);
 }
 
@@ -382,23 +561,46 @@ export function toggleReaction(m: Message, emoji: string, meId: string): void {
   // Optimistic toggle; the server's reaction:updated event is authoritative.
   const mine = m.reactions.find((r) => r.emoji === emoji)?.userIds.includes(meId);
   const optimistic: Reaction[] = mine
-    ? m.reactions.map((r) => (r.emoji === emoji ? { ...r, userIds: r.userIds.filter((u) => u !== meId) } : r)).filter((r) => r.userIds.length > 0)
+    ? m.reactions
+        .map((r) =>
+          r.emoji === emoji ? { ...r, userIds: r.userIds.filter((u) => u !== meId) } : r,
+        )
+        .filter((r) => r.userIds.length > 0)
     : m.reactions.some((r) => r.emoji === emoji)
       ? m.reactions.map((r) => (r.emoji === emoji ? { ...r, userIds: [...r.userIds, meId] } : r))
       : [...m.reactions, { emoji, userIds: [meId] }];
   store.setReactions(m.conversationId, m.id, optimistic);
-  socket.timeout(ACK_TIMEOUT_MS).emit('reaction:toggle', { messageId: m.id, emoji }, (err: Error | null, res?: Ack<{ reactions: Reaction[] }>) => {
-    if (err || !res || !res.ok) store.setReactions(m.conversationId, m.id, m.reactions); // roll back
-    else store.setReactions(m.conversationId, m.id, res.data.reactions);
-  });
+  socket
+    .timeout(ACK_TIMEOUT_MS)
+    .emit(
+      'reaction:toggle',
+      { messageId: m.id, emoji },
+      (err: Error | null, res?: Ack<{ reactions: Reaction[] }>) => {
+        if (err || !res || !res.ok)
+          store.setReactions(m.conversationId, m.id, m.reactions); // roll back
+        else store.setReactions(m.conversationId, m.id, res.data.reactions);
+      },
+    );
 }
 
-export function emitAckAction<T>(event: 'message:edit' | 'message:delete' | 'message:pin', payload: Record<string, unknown>): Promise<Ack<T>> {
+export function emitAckAction<T>(
+  event: 'message:edit' | 'message:delete' | 'message:pin',
+  payload: Record<string, unknown>,
+): Promise<Ack<T>> {
   return new Promise((resolve) => {
     const socket = getSocket();
-    if (!socket) return resolve({ ok: false, error: { code: 'internal', message: 'offline' } } as Ack<T>);
-    (socket.timeout(ACK_TIMEOUT_MS) as unknown as { emit: (e: string, p: unknown, cb: (err: Error | null, r?: Ack<T>) => void) => void }).emit(event, payload, (err, res) => {
-      resolve(err || !res ? ({ ok: false, error: { code: 'internal', message: 'timeout' } } as Ack<T>) : res);
+    if (!socket)
+      return resolve({ ok: false, error: { code: 'internal', message: 'offline' } } as Ack<T>);
+    (
+      socket.timeout(ACK_TIMEOUT_MS) as unknown as {
+        emit: (e: string, p: unknown, cb: (err: Error | null, r?: Ack<T>) => void) => void;
+      }
+    ).emit(event, payload, (err, res) => {
+      resolve(
+        err || !res
+          ? ({ ok: false, error: { code: 'internal', message: 'timeout' } } as Ack<T>)
+          : res,
+      );
     });
   });
 }

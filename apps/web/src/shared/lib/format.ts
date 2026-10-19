@@ -21,7 +21,11 @@ const toDate = (d: Date | string | number) => (d instanceof Date ? d : new Date(
 export function createFormatters(locale: string): Formatters {
   const time = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' });
   const date = new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'long', day: 'numeric' });
-  const dateYear = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' });
+  const dateYear = new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
   const dateTime = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' });
   const num = new Intl.NumberFormat(locale);
   const dec = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });

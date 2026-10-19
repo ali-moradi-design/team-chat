@@ -7,7 +7,15 @@ export const TooltipProvider = ({ children }: { children: ReactNode }) => (
   </RadixTooltip.Provider>
 );
 
-export function Tooltip({ label, children, side = 'top' }: { label: ReactNode; children: ReactNode; side?: 'top' | 'bottom' | 'left' | 'right' }) {
+export function Tooltip({
+  label,
+  children,
+  side = 'top',
+}: {
+  label: ReactNode;
+  children: ReactNode;
+  side?: 'top' | 'bottom' | 'left' | 'right';
+}) {
   return (
     <RadixTooltip.Root>
       <RadixTooltip.Trigger asChild>{children}</RadixTooltip.Trigger>

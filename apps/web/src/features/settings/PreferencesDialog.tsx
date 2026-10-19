@@ -1,16 +1,33 @@
 import { Bell, Moon, Sun, MonitorSmartphone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import {
+  enableBrowserNotifications,
+  notificationPermission,
+} from '@/shared/lib/browser-notifications';
 import { setLanguage } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
 import { useDialogs } from '@/shared/lib/dialogs';
 import { usePrefs, type ThemePref } from '@/shared/lib/prefs';
 import { Dialog, Switch } from '@/shared/ui';
-import { enableBrowserNotifications, notificationPermission } from '../notifications';
 
-function Segmented<T extends string>({ value, options, onChange, label }: { value: T; options: Array<{ id: T; label: string; icon?: React.ReactNode }>; onChange: (v: T) => void; label: string }) {
+function Segmented<T extends string>({
+  value,
+  options,
+  onChange,
+  label,
+}: {
+  value: T;
+  options: Array<{ id: T; label: string; icon?: React.ReactNode }>;
+  onChange: (v: T) => void;
+  label: string;
+}) {
   return (
-    <div role="radiogroup" aria-label={label} className="grid auto-cols-fr grid-flow-col gap-1 rounded-xl border border-line bg-elevated p-1">
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className="grid auto-cols-fr grid-flow-col gap-1 rounded-xl border border-line bg-elevated p-1"
+    >
       {options.map((o) => (
         <button
           key={o.id}
@@ -18,7 +35,10 @@ function Segmented<T extends string>({ value, options, onChange, label }: { valu
           role="radio"
           aria-checked={value === o.id}
           onClick={() => onChange(o.id)}
-          className={cn('flex h-8 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-medium transition-colors', value === o.id ? 'bg-panel text-fg shadow-sm' : 'text-muted hover:text-fg')}
+          className={cn(
+            'flex h-8 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-medium transition-colors',
+            value === o.id ? 'bg-panel text-fg shadow-sm' : 'text-muted hover:text-fg',
+          )}
         >
           {o.icon}
           {o.label}
@@ -38,11 +58,23 @@ export function PreferencesDialog() {
   const toggleNotifications = async (on: boolean) => {
     if (!on) return prefs.set({ browserNotifications: false });
     const ok = await enableBrowserNotifications();
-    if (!ok) toast.error(t(perm === 'unsupported' ? 'settings.notificationsUnsupported' : 'settings.notificationsBlocked'));
+    if (!ok)
+      toast.error(
+        t(
+          perm === 'unsupported'
+            ? 'settings.notificationsUnsupported'
+            : 'settings.notificationsBlocked',
+        ),
+      );
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && close('prefs')} title={t('settings.title')} mobileSheet>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => !o && close('prefs')}
+      title={t('settings.title')}
+      mobileSheet
+    >
       <div className="flex flex-col gap-5 p-5">
         <section className="flex flex-col gap-2">
           <h3 className="text-sm font-semibold">{t('settings.theme')}</h3>
@@ -53,7 +85,11 @@ export function PreferencesDialog() {
             options={[
               { id: 'dark', label: t('settings.dark'), icon: <Moon className="size-3.5" /> },
               { id: 'light', label: t('settings.light'), icon: <Sun className="size-3.5" /> },
-              { id: 'system', label: t('settings.system'), icon: <MonitorSmartphone className="size-3.5" /> },
+              {
+                id: 'system',
+                label: t('settings.system'),
+                icon: <MonitorSmartphone className="size-3.5" />,
+              },
             ]}
           />
         </section>
@@ -91,7 +127,12 @@ export function PreferencesDialog() {
               <span className="block text-xs text-muted">{t('settings.notificationsHint')}</span>
             </span>
           </span>
-          <Switch checked={prefs.browserNotifications && perm === 'granted'} onCheckedChange={(v) => void toggleNotifications(v)} aria-label={t('settings.notifications')} disabled={perm === 'unsupported'} />
+          <Switch
+            checked={prefs.browserNotifications && perm === 'granted'}
+            onCheckedChange={(v) => void toggleNotifications(v)}
+            aria-label={t('settings.notifications')}
+            disabled={perm === 'unsupported'}
+          />
         </section>
       </div>
     </Dialog>

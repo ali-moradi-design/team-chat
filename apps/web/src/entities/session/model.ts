@@ -31,7 +31,11 @@ export const useSession = create<SessionState>((set) => ({
       refreshSession(),
       api<{ demo: boolean }>('/api/config', { anonymous: true }).catch(() => ({ demo: false })),
     ]);
-    set(session ? { status: 'authed', me: session.user, demo: config.demo } : { status: 'anon', me: null, demo: config.demo });
+    set(
+      session
+        ? { status: 'authed', me: session.user, demo: config.demo }
+        : { status: 'anon', me: null, demo: config.demo },
+    );
   },
   async login(body) {
     accept(set, await api<AuthResponse>('/api/auth/login', { body, anonymous: true }));

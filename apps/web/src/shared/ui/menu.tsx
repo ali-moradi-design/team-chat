@@ -5,7 +5,11 @@ import { cn } from '../lib/cn';
 export const Menu = Dropdown.Root;
 export const MenuTrigger = Dropdown.Trigger;
 
-export function MenuContent({ className, children, ...props }: ComponentPropsWithoutRef<typeof Dropdown.Content>) {
+export function MenuContent({
+  className,
+  children,
+  ...props
+}: ComponentPropsWithoutRef<typeof Dropdown.Content>) {
   return (
     <Dropdown.Portal>
       <Dropdown.Content
@@ -47,5 +51,7 @@ export function MenuItem({
 
 export const MenuSeparator = () => <Dropdown.Separator className="my-1 h-px bg-line" />;
 export const MenuLabel = ({ children }: { children: ReactNode }) => (
-  <Dropdown.Label className="px-2.5 py-1.5 text-xs font-medium text-faint">{children}</Dropdown.Label>
+  <Dropdown.Label className="px-2.5 py-1.5 text-xs font-medium text-faint">
+    {children}
+  </Dropdown.Label>
 );

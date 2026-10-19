@@ -44,7 +44,8 @@ export const useUsers = create<UsersState>((set) => ({
   setPresenceSnapshot: (snapshot) => set({ presence: snapshot }),
 }));
 
-export const useUser = (id: string | undefined): User | undefined => useUsers((s) => (id ? s.byId[id] : undefined));
+export const useUser = (id: string | undefined): User | undefined =>
+  useUsers((s) => (id ? s.byId[id] : undefined));
 
 /** Bots are always shown as online. */
 export function usePresenceOf(id: string | undefined): PresenceStatus {

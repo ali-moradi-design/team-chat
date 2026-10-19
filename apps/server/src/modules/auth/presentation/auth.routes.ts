@@ -16,7 +16,7 @@ import { toMe } from '../application/auth.service';
 export const REFRESH_COOKIE = 'tc_refresh';
 export const MEDIA_COOKIE = 'tc_media';
 
-type CookieConfig = Pick<Config, 'cookieSecure' | 'isTest' | 'demoMode'>;
+type CookieConfig = Pick<Config, 'cookieSecure' | 'isTest' | 'demoMode' | 'authRateLimit'>;
 
 export function authRoutes(
   service: AuthService,
@@ -28,7 +28,7 @@ export function authRoutes(
   // Brute-force protection on credential endpoints (per IP).
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: config.isTest ? 1000 : 30,
+    limit: config.isTest ? 1000 : config.authRateLimit,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     message: { error: { code: 'rate_limited', message: 'Too many attempts, try again later' } },

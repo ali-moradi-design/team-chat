@@ -261,7 +261,8 @@ export const en = {
     digitsNative: 'Native',
     digitsLatin: 'Latin (0-9)',
     notifications: 'Desktop notifications',
-    notificationsHint: 'Get notified about mentions and direct messages while this tab is in the background.',
+    notificationsHint:
+      'Get notified about mentions and direct messages while this tab is in the background.',
     notificationsBlocked: 'Notifications are blocked in your browser settings.',
     notificationsUnsupported: 'This browser does not support notifications.',
     shortcuts: 'Keyboard shortcuts',

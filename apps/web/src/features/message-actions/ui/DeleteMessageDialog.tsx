@@ -5,7 +5,13 @@ import type { Message } from '@team-chat/shared';
 import { emitAckAction } from '@/entities/message';
 import { Button, Dialog } from '@/shared/ui';
 
-export function DeleteMessageDialog({ message, onClose }: { message: Message | null; onClose: () => void }) {
+export function DeleteMessageDialog({
+  message,
+  onClose,
+}: {
+  message: Message | null;
+  onClose: () => void;
+}) {
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const confirm = async () => {
@@ -17,7 +23,12 @@ export function DeleteMessageDialog({ message, onClose }: { message: Message | n
     onClose();
   };
   return (
-    <Dialog open={!!message} onOpenChange={(o) => !o && onClose()} title={t('message.deleteTitle')} description={t('message.deleteBody')}>
+    <Dialog
+      open={!!message}
+      onOpenChange={(o) => !o && onClose()}
+      title={t('message.deleteTitle')}
+      description={t('message.deleteBody')}
+    >
       <div className="flex justify-end gap-2 p-4">
         <Button variant="ghost" onClick={onClose}>
           {t('common.cancel')}

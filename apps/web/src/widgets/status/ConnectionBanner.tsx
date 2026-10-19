@@ -18,9 +18,16 @@ export function ConnectionBanner() {
   if (!show || state === 'connected') return null;
   const offline = state === 'offline';
   return (
-    <div role="status" className="flex items-center justify-center gap-2 bg-accent px-3 py-1.5 text-center text-xs font-semibold text-accent-fg">
+    <div
+      role="status"
+      className="flex items-center justify-center gap-2 bg-accent px-3 py-1.5 text-center text-xs font-semibold text-accent-fg"
+    >
       {offline ? <CloudOff className="size-3.5" /> : <Loader2 className="size-3.5 animate-spin" />}
-      {offline ? t('status.offline') : state === 'connecting' ? t('status.connecting') : t('status.reconnecting')}
+      {offline
+        ? t('status.offline')
+        : state === 'connecting'
+          ? t('status.connecting')
+          : t('status.reconnecting')}
     </div>
   );
 }

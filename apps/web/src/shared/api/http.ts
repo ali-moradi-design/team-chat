@@ -6,7 +6,12 @@ export class ApiClientError extends Error {
   readonly code: ApiError['code'] | 'network';
   readonly details?: unknown;
 
-  constructor(status: number, code: ApiError['code'] | 'network', message: string, details?: unknown) {
+  constructor(
+    status: number,
+    code: ApiError['code'] | 'network',
+    message: string,
+    details?: unknown,
+  ) {
     super(message);
     this.status = status;
     this.code = code;
@@ -52,7 +57,8 @@ export function refreshSession(): Promise<AuthResponse | null> {
 
 async function send(path: string, opts: Options, token: string | null): Promise<Response> {
   const headers: Record<string, string> = {};
-  if (opts.body !== undefined && !(opts.body instanceof FormData)) headers['content-type'] = 'application/json';
+  if (opts.body !== undefined && !(opts.body instanceof FormData))
+    headers['content-type'] = 'application/json';
   if (token && !opts.anonymous) headers.authorization = `Bearer ${token}`;
   try {
     return await fetch(path, {
@@ -61,7 +67,11 @@ async function send(path: string, opts: Options, token: string | null): Promise<
       credentials: 'same-origin',
       signal: opts.signal ?? null,
       body:
-        opts.body === undefined ? null : opts.body instanceof FormData ? opts.body : JSON.stringify(opts.body),
+        opts.body === undefined
+          ? null
+          : opts.body instanceof FormData
+            ? opts.body
+            : JSON.stringify(opts.body),
     });
   } catch (e) {
     if ((e as Error).name === 'AbortError') throw e;
@@ -80,7 +90,12 @@ export async function api<T = unknown>(path: string, opts: Options = {}): Promis
   const data = text ? (JSON.parse(text) as unknown) : undefined;
   if (!res.ok) {
     const err = (data as { error?: ApiError } | undefined)?.error;
-    throw new ApiClientError(res.status, err?.code ?? 'internal', err?.message ?? res.statusText, err?.details);
+    throw new ApiClientError(
+      res.status,
+      err?.code ?? 'internal',
+      err?.message ?? res.statusText,
+      err?.details,
+    );
   }
   return data as T;
 }

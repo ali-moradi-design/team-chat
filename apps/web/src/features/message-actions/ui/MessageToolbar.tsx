@@ -1,11 +1,33 @@
-import { CornerUpLeft, Link2, MoreHorizontal, Pencil, Pin, PinOff, SmilePlus, Trash2, Copy } from 'lucide-react';
+import {
+  CornerUpLeft,
+  Link2,
+  MoreHorizontal,
+  Pencil,
+  Pin,
+  PinOff,
+  SmilePlus,
+  Trash2,
+  Copy,
+} from 'lucide-react';
 import { Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import type { Message } from '@team-chat/shared';
 import { emitAckAction, toggleReaction } from '@/entities/message';
 import { LazyEmojiPicker } from '@/features/emoji-picker';
-import { Button, Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger, Popover, PopoverContent, PopoverTrigger, Spinner, Tooltip } from '@/shared/ui';
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Spinner,
+  Tooltip,
+} from '@/shared/ui';
 import { useMessageActions } from '../model/context';
 
 const QUICK = ['👍', '❤️', '😂'];
@@ -37,9 +59,20 @@ export function MessageToolbar({ message: m }: { message: Message }) {
   };
 
   return (
-    <div role="toolbar" aria-label={t('message.more')} className="flex items-center gap-0.5 rounded-xl border border-line bg-panel p-0.5 shadow-pop">
+    <div
+      role="toolbar"
+      aria-label={t('message.more')}
+      className="flex items-center gap-0.5 rounded-xl border border-line bg-panel p-0.5 shadow-pop"
+    >
       {QUICK.map((e) => (
-        <Button key={e} variant="ghost" size="icon-sm" aria-label={e} onClick={() => toggleReaction(m, e, ctx.meId)} className="text-base">
+        <Button
+          key={e}
+          variant="ghost"
+          size="icon-sm"
+          aria-label={e}
+          onClick={() => toggleReaction(m, e, ctx.meId)}
+          className="text-base"
+        >
           {e}
         </Button>
       ))}
@@ -52,7 +85,13 @@ export function MessageToolbar({ message: m }: { message: Message }) {
           </PopoverTrigger>
         </Tooltip>
         <PopoverContent align="end">
-          <Suspense fallback={<div className="grid h-60 w-72 place-items-center"><Spinner /></div>}>
+          <Suspense
+            fallback={
+              <div className="grid h-60 w-72 place-items-center">
+                <Spinner />
+              </div>
+            }
+          >
             <LazyEmojiPicker
               onPick={(e) => {
                 toggleReaction(m, e, ctx.meId);
@@ -64,7 +103,12 @@ export function MessageToolbar({ message: m }: { message: Message }) {
       </Popover>
       {!ctx.inThread && (
         <Tooltip label={t('message.replyInThread')}>
-          <Button variant="ghost" size="icon-sm" aria-label={t('message.replyInThread')} onClick={() => ctx.onReply(m)}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('message.replyInThread')}
+            onClick={() => ctx.onReply(m)}
+          >
             <CornerUpLeft className="size-4 rtl:-scale-x-100" />
           </Button>
         </Tooltip>
@@ -84,22 +128,35 @@ export function MessageToolbar({ message: m }: { message: Message }) {
             </MenuItem>
           )}
           {canPin && (
-            <MenuItem icon={m.pinned ? <PinOff className="size-4" /> : <Pin className="size-4" />} onSelect={() => void pin()}>
+            <MenuItem
+              icon={m.pinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
+              onSelect={() => void pin()}
+            >
               {m.pinned ? t('message.unpin') : t('message.pin')}
             </MenuItem>
           )}
           {m.text && (
-            <MenuItem icon={<Copy className="size-4" />} onSelect={() => void copy(m.text, t('message.textCopied'))}>
+            <MenuItem
+              icon={<Copy className="size-4" />}
+              onSelect={() => void copy(m.text, t('message.textCopied'))}
+            >
               {t('message.copyText')}
             </MenuItem>
           )}
-          <MenuItem icon={<Link2 className="size-4" />} onSelect={() => void copy(messageLink(m), t('message.linkCopied'))}>
+          <MenuItem
+            icon={<Link2 className="size-4" />}
+            onSelect={() => void copy(messageLink(m), t('message.linkCopied'))}
+          >
             {t('message.copyLink')}
           </MenuItem>
           {canDelete && (
             <>
               <MenuSeparator />
-              <MenuItem danger icon={<Trash2 className="size-4" />} onSelect={() => ctx.onDelete(m)}>
+              <MenuItem
+                danger
+                icon={<Trash2 className="size-4" />}
+                onSelect={() => ctx.onDelete(m)}
+              >
                 {t('message.delete')}
               </MenuItem>
             </>

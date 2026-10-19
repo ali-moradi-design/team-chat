@@ -62,20 +62,44 @@ export function QuickSwitcher({ onSearch }: { onSearch: (q: string) => void }) {
     const convRows = Object.values(convs)
       .map((c: ConversationSummary) => ({ c, s: score(titleOf(c), needle) }))
       .filter((x) => x.s !== Infinity)
-      .sort((a, b) => a.s - b.s || b.c.unreadCount - a.c.unreadCount || titleOf(a.c).localeCompare(titleOf(b.c)))
+      .sort(
+        (a, b) =>
+          a.s - b.s ||
+          b.c.unreadCount - a.c.unreadCount ||
+          titleOf(a.c).localeCompare(titleOf(b.c)),
+      )
       .slice(0, 8)
       .map<Row>(({ c }) => ({
         key: c.id,
         label: titleOf(c),
         badge: c.unreadCount,
-        icon: c.type === 'dm' ? <UserAvatar userId={c.members.find((m) => m.userId !== me.id)?.userId ?? me.id} size="xs" /> : c.isPrivate ? <Lock className="size-4" /> : <Hash className="size-4" />,
+        icon:
+          c.type === 'dm' ? (
+            <UserAvatar
+              userId={c.members.find((m) => m.userId !== me.id)?.userId ?? me.id}
+              size="xs"
+            />
+          ) : c.isPrivate ? (
+            <Lock className="size-4" />
+          ) : (
+            <Hash className="size-4" />
+          ),
         hint: c.type === 'channel' ? t('quick.channels') : t('quick.people'),
         run: go(c.id),
       }));
-    const dmPeers = new Set(Object.values(convs).filter((c) => c.type === 'dm' && c.members.length === 2).flatMap((c) => c.members.map((m) => m.userId)));
+    const dmPeers = new Set(
+      Object.values(convs)
+        .filter((c) => c.type === 'dm' && c.members.length === 2)
+        .flatMap((c) => c.members.map((m) => m.userId)),
+    );
     const userRows = needle
       ? Object.values(users)
-          .filter((u) => u.id !== me.id && !dmPeers.has(u.id) && (score(u.name, needle) !== Infinity || u.handle.includes(needle)))
+          .filter(
+            (u) =>
+              u.id !== me.id &&
+              !dmPeers.has(u.id) &&
+              (score(u.name, needle) !== Infinity || u.handle.includes(needle)),
+          )
           .slice(0, 4)
           .map<Row>((u) => ({
             key: `u-${u.id}`,
@@ -84,7 +108,10 @@ export function QuickSwitcher({ onSearch }: { onSearch: (q: string) => void }) {
             icon: <UserAvatar userId={u.id} size="xs" />,
             run: async () => {
               try {
-                const { conversation } = await api<{ conversation: ConversationSummary }>('/api/conversations/dm', { body: { userIds: [u.id] } });
+                const { conversation } = await api<{ conversation: ConversationSummary }>(
+                  '/api/conversations/dm',
+                  { body: { userIds: [u.id] } },
+                );
                 useConversations.getState().upsert(conversation);
                 close('quick');
                 void navigate(`/c/${conversation.id}`);
@@ -94,7 +121,17 @@ export function QuickSwitcher({ onSearch }: { onSearch: (q: string) => void }) {
             },
           }))
       : [];
-    const searchRow: Row[] = q.trim().length >= 2 ? [{ key: 'search', label: t('quick.searchFor', { q: q.trim() }), icon: <Search className="size-4" />, run: () => (close('quick'), onSearch(q.trim())) }] : [];
+    const searchRow: Row[] =
+      q.trim().length >= 2
+        ? [
+            {
+              key: 'search',
+              label: t('quick.searchFor', { q: q.trim() }),
+              icon: <Search className="size-4" />,
+              run: () => (close('quick'), onSearch(q.trim())),
+            },
+          ]
+        : [];
     return [...convRows, ...userRows, ...searchRow];
   }, [q, convs, users, titleOf, me.id, navigate, close, onSearch, t]);
 
@@ -105,13 +142,26 @@ export function QuickSwitcher({ onSearch }: { onSearch: (q: string) => void }) {
 
   const onKey = (e: React.KeyboardEvent) => {
     if (e.nativeEvent.isComposing) return;
-    if (e.key === 'ArrowDown') (e.preventDefault(), setIndex((i) => Math.min(i + 1, rows.length - 1)));
-    else if (e.key === 'ArrowUp') (e.preventDefault(), setIndex((i) => Math.max(i - 1, 0)));
-    else if (e.key === 'Enter') (e.preventDefault(), void rows[index]?.run());
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setIndex((i) => Math.min(i + 1, rows.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      void rows[index]?.run();
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && close('quick')} title={t('quick.title')} mobileSheet className="sm:top-[10vh]">
+    <Dialog
+      open={open}
+      onOpenChange={(o) => !o && close('quick')}
+      title={t('quick.title')}
+      mobileSheet
+      className="sm:top-[10vh]"
+    >
       <div onKeyDown={onKey}>
         <div className="flex items-center gap-3 border-b border-line px-4">
           <Search className="size-4 shrink-0 text-muted" />
@@ -129,12 +179,24 @@ export function QuickSwitcher({ onSearch }: { onSearch: (q: string) => void }) {
           />
         </div>
         <ul id="qs-list" ref={list} role="listbox" className="max-h-[50vh] overflow-y-auto p-1.5">
-          {rows.length === 0 && <li className="p-6 text-center text-sm text-muted">{t('quick.none')}</li>}
+          {rows.length === 0 && (
+            <li className="p-6 text-center text-sm text-muted">{t('quick.none')}</li>
+          )}
           {rows.map((r, i) => (
             <li key={r.key} role="option" aria-selected={i === index}>
-              <button type="button" onMouseMove={() => setIndex(i)} onClick={() => void r.run()} className={cn('flex w-full items-center gap-3 rounded-xl px-3 py-2 text-start text-sm', i === index && 'bg-elevated')}>
+              <button
+                type="button"
+                onMouseMove={() => setIndex(i)}
+                onClick={() => void r.run()}
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-xl px-3 py-2 text-start text-sm',
+                  i === index && 'bg-elevated',
+                )}
+              >
                 <span className="grid size-5 place-items-center text-muted">{r.icon}</span>
-                <span className="min-w-0 flex-1 truncate" dir="auto">{r.label}</span>
+                <span className="min-w-0 flex-1 truncate" dir="auto">
+                  {r.label}
+                </span>
                 {r.hint && <span className="shrink-0 text-xs text-faint">{r.hint}</span>}
                 {r.badge ? <CountBadge count={r.badge} /> : null}
               </button>

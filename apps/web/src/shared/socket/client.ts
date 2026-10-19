@@ -7,10 +7,12 @@ import { tokenStore } from '../api/token';
 export type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 export type ConnectionState = 'connecting' | 'connected' | 'reconnecting' | 'offline';
 
-export const useConnection = create<{ state: ConnectionState; set: (s: ConnectionState) => void }>((set) => ({
-  state: 'connecting',
-  set: (state) => set({ state }),
-}));
+export const useConnection = create<{ state: ConnectionState; set: (s: ConnectionState) => void }>(
+  (set) => ({
+    state: 'connecting',
+    set: (state) => set({ state }),
+  }),
+);
 
 let socket: AppSocket | null = null;
 
@@ -30,11 +32,14 @@ export function connectSocket(): AppSocket {
   });
   const conn = useConnection.getState();
   s.on('connect', () => conn.set('connected'));
-  s.on('disconnect', (reason) => conn.set(reason === 'io client disconnect' ? 'offline' : 'reconnecting'));
+  s.on('disconnect', (reason) =>
+    conn.set(reason === 'io client disconnect' ? 'offline' : 'reconnecting'),
+  );
   s.io.on('reconnect_attempt', () => useConnection.getState().set('reconnecting'));
   s.on('connect_error', async (err) => {
     // Expired access token: refresh, then let socket.io retry with the new token.
-    if ((err as Error & { data?: { code?: string } }).data?.code === 'unauthorized') await refreshSession();
+    if ((err as Error & { data?: { code?: string } }).data?.code === 'unauthorized')
+      await refreshSession();
     useConnection.getState().set(navigator.onLine ? 'reconnecting' : 'offline');
   });
   window.addEventListener('online', () => s.connect());

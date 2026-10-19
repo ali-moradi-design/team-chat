@@ -29,8 +29,15 @@ interface Props {
 function CodeBlock({ value, lang }: { value: string; lang?: string | undefined }) {
   const [copied, setCopied] = useState(false);
   return (
-    <div dir="ltr" className="group/code relative my-1.5 overflow-hidden rounded-xl border border-line bg-surface text-start">
-      {lang && <div className="border-b border-line px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-faint">{lang}</div>}
+    <div
+      dir="ltr"
+      className="group/code relative my-1.5 overflow-hidden rounded-xl border border-line bg-surface text-start"
+    >
+      {lang && (
+        <div className="border-b border-line px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-faint">
+          {lang}
+        </div>
+      )}
       <pre className="overflow-x-auto p-3 font-mono text-[13px] leading-relaxed">
         <code>{value}</code>
       </pre>
@@ -50,7 +57,11 @@ function CodeBlock({ value, lang }: { value: string; lang?: string | undefined }
   );
 }
 
-function render(tokens: RichToken[], resolve: Props['resolveMention'], keyPrefix = ''): ReactNode[] {
+function render(
+  tokens: RichToken[],
+  resolve: Props['resolveMention'],
+  keyPrefix = '',
+): ReactNode[] {
   return tokens.map((t, i) => {
     const key = `${keyPrefix}${i}`;
     switch (t.type) {
@@ -72,7 +83,11 @@ function render(tokens: RichToken[], resolve: Props['resolveMention'], keyPrefix
         );
       case 'code':
         return (
-          <code key={key} dir="ltr" className="rounded-md border border-line bg-elevated px-1.5 py-0.5 font-mono text-[0.86em]">
+          <code
+            key={key}
+            dir="ltr"
+            className="rounded-md border border-line bg-elevated px-1.5 py-0.5 font-mono text-[0.86em]"
+          >
             {t.value}
           </code>
         );
@@ -92,7 +107,8 @@ function render(tokens: RichToken[], resolve: Props['resolveMention'], keyPrefix
           </a>
         );
       case 'mention': {
-        const info = t.handle === 'channel' ? { label: 'channel', self: false } : resolve?.(t.handle);
+        const info =
+          t.handle === 'channel' ? { label: 'channel', self: false } : resolve?.(t.handle);
         if (!info) return <span key={key}>@{t.handle}</span>;
         return (
           <span
@@ -112,7 +128,10 @@ function render(tokens: RichToken[], resolve: Props['resolveMention'], keyPrefix
 
 export const RichText = memo(function RichText({ text, resolveMention, className }: Props) {
   return (
-    <div dir="auto" className={cn('whitespace-pre-wrap break-words [overflow-wrap:anywhere]', className)}>
+    <div
+      dir="auto"
+      className={cn('whitespace-pre-wrap break-words [overflow-wrap:anywhere]', className)}
+    >
       {render(parseCached(text), resolveMention)}
     </div>
   );

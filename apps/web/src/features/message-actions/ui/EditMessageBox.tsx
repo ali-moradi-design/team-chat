@@ -64,7 +64,12 @@ export function EditMessageBox({ message, onDone }: { message: Message; onDone: 
           <Button size="sm" variant="ghost" onClick={onDone}>
             {t('common.cancel')}
           </Button>
-          <Button size="sm" variant="primary" disabled={busy || (!text.trim() && message.attachments.length === 0)} onClick={() => void save()}>
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={busy || (!text.trim() && message.attachments.length === 0)}
+            onClick={() => void save()}
+          >
             {t('common.save')}
           </Button>
         </div>

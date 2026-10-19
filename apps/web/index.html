@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#170602" />
-    <meta name="description" content="Team Chat — realtime channels, threads and direct messages." />
+    <meta
+      name="description"
+      content="Team Chat — realtime channels, threads and direct messages."
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Team Chat</title>
     <script>
@@ -13,14 +16,18 @@
         try {
           var p = JSON.parse(localStorage.getItem('tc:prefs') || '{}');
           var theme = p.theme || 'dark';
-          var dark = theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+          var dark =
+            theme === 'dark' ||
+            (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
           var el = document.documentElement;
           el.classList.toggle('dark', dark);
           el.classList.toggle('light', !dark);
           var lang = p.lang === 'fa' ? 'fa' : 'en';
           el.lang = lang;
           el.dir = lang === 'fa' ? 'rtl' : 'ltr';
-          document.querySelector('meta[name=theme-color]').setAttribute('content', dark ? '#170602' : '#fff8ef');
+          document
+            .querySelector('meta[name=theme-color]')
+            .setAttribute('content', dark ? '#170602' : '#fff8ef');
         } catch (e) {}
       })();
     </script>

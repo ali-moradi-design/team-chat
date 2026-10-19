@@ -2,12 +2,18 @@ import type { ApiError, Attachment } from '@team-chat/shared';
 import { ApiClientError, refreshSession } from './http';
 import { tokenStore } from './token';
 
-function once(file: File, token: string | null, onProgress: (pct: number) => void, signal?: AbortSignal): Promise<{ status: number; body: unknown }> {
+function once(
+  file: File,
+  token: string | null,
+  onProgress: (pct: number) => void,
+  signal?: AbortSignal,
+): Promise<{ status: number; body: unknown }> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/files');
     if (token) xhr.setRequestHeader('authorization', `Bearer ${token}`);
-    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(Math.round((e.loaded / e.total) * 100));
+    xhr.upload.onprogress = (e) =>
+      e.lengthComputable && onProgress(Math.round((e.loaded / e.total) * 100));
     xhr.onload = () => {
       let body: unknown;
       try {
@@ -27,7 +33,11 @@ function once(file: File, token: string | null, onProgress: (pct: number) => voi
 }
 
 /** Uploads one file with progress. Retries once after refreshing an expired token. */
-export async function uploadFile(file: File, onProgress: (pct: number) => void, signal?: AbortSignal): Promise<Attachment> {
+export async function uploadFile(
+  file: File,
+  onProgress: (pct: number) => void,
+  signal?: AbortSignal,
+): Promise<Attachment> {
   let res = await once(file, tokenStore.get(), onProgress, signal);
   if (res.status === 401) {
     const session = await refreshSession();

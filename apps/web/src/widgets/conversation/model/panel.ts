@@ -9,7 +9,8 @@ export function panelFromParams(params: URLSearchParams): Panel | null {
   if (thread && /^[a-f\d]{24}$/i.test(thread)) return { type: 'thread', rootId: thread };
   const p = params.get('panel');
   if (p === 'details' || p === 'pins') return { type: p };
-  if (p === 'search') return { type: 'search', ...(params.get('q') ? { q: params.get('q')! } : {}) };
+  if (p === 'search')
+    return { type: 'search', ...(params.get('q') ? { q: params.get('q')! } : {}) };
   return null;
 }
 

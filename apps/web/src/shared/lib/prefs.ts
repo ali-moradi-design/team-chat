@@ -39,7 +39,9 @@ function persist(p: Prefs): void {
 }
 
 export function resolveDark(theme: ThemePref): boolean {
-  return theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+  return (
+    theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
+  );
 }
 
 export function applyPrefsToDocument(p: Prefs): void {
@@ -49,7 +51,9 @@ export function applyPrefsToDocument(p: Prefs): void {
   el.classList.toggle('light', !dark);
   el.lang = p.lang;
   el.dir = p.lang === 'fa' ? 'rtl' : 'ltr';
-  document.querySelector('meta[name=theme-color]')?.setAttribute('content', dark ? '#170602' : '#fff8ef');
+  document
+    .querySelector('meta[name=theme-color]')
+    ?.setAttribute('content', dark ? '#170602' : '#fff8ef');
 }
 
 interface PrefsStore extends Prefs {

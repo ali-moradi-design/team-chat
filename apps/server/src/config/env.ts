@@ -25,8 +25,9 @@ const schema = z.object({
     .positive()
     .default(10 * 1024 * 1024),
   REDIS_URL: z.string().optional(),
+  AUTH_RATE_LIMIT: z.coerce.number().int().positive().default(30),
   DEMO_MODE: bool.default(false),
-  DEMO_BOT: bool.default(false),
+  DEMO_BOT: bool.optional(),
   SERVE_WEB_DIR: z.string().optional(),
 });
 
@@ -47,6 +48,7 @@ export interface Config {
   uploadDir: string;
   maxFileBytes: number;
   redisUrl?: string;
+  authRateLimit: number;
   demoMode: boolean;
   demoBot: boolean;
   serveWebDir?: string;
@@ -82,8 +84,9 @@ export function loadConfig(source: NodeJS.ProcessEnv = process.env): Config {
     uploadDir: env.UPLOAD_DIR,
     maxFileBytes: env.MAX_FILE_BYTES,
     redisUrl: env.REDIS_URL,
+    authRateLimit: env.AUTH_RATE_LIMIT,
     demoMode: env.DEMO_MODE,
-    demoBot: env.DEMO_BOT || env.DEMO_MODE,
+    demoBot: env.DEMO_BOT ?? env.DEMO_MODE,
     serveWebDir: env.SERVE_WEB_DIR,
   };
 }

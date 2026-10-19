@@ -3,12 +3,26 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Message } from '@team-chat/shared';
 import { useConversation } from '@/entities/conversation';
-import { MessageItem, PendingItem, discardPending, retryPending, toggleReaction, useMessages, type AuthorView } from '@/entities/message';
+import {
+  MessageItem,
+  PendingItem,
+  discardPending,
+  retryPending,
+  toggleReaction,
+  useMessages,
+  type AuthorView,
+} from '@/entities/message';
 import { useSession } from '@/entities/session';
 import { useUsers } from '@/entities/user';
 import { Composer } from '@/features/composer';
 import { useConversationTitle } from '@/features/conversation-title';
-import { DeleteMessageDialog, EditMessageBox, MessageActionsContext, MessageToolbar, type MessageActionsContextValue } from '@/features/message-actions';
+import {
+  DeleteMessageDialog,
+  EditMessageBox,
+  MessageActionsContext,
+  MessageToolbar,
+  type MessageActionsContextValue,
+} from '@/features/message-actions';
 import { useDialogs } from '@/shared/lib/dialogs';
 import { Button, EmptyState, Skeleton, type MentionInfo } from '@/shared/ui';
 
@@ -39,7 +53,9 @@ export function ThreadPanel({ rootId, onClose }: { rootId: string; onClose: () =
   const authorOf = useCallback(
     (id: string): AuthorView => {
       const u = users[id];
-      return u ? { id, name: u.name, hue: u.hue, isBot: u.isBot } : { id, name: t('common.unknownUser'), hue: 20, isBot: false };
+      return u
+        ? { id, name: u.name, hue: u.hue, isBot: u.isBot }
+        : { id, name: t('common.unknownUser'), hue: 20, isBot: false };
     },
     [users, t],
   );
@@ -50,19 +66,44 @@ export function ThreadPanel({ rootId, onClose }: { rootId: string; onClose: () =
     },
     [byHandle, users, me.id],
   );
-  const nameOf = useCallback((id: string) => users[id]?.name ?? t('common.unknownUser'), [users, t]);
-  const onToggleReaction = useCallback((m: Message, e: string) => toggleReaction(m, e, me.id), [me.id]);
+  const nameOf = useCallback(
+    (id: string) => users[id]?.name ?? t('common.unknownUser'),
+    [users, t],
+  );
+  const onToggleReaction = useCallback(
+    (m: Message, e: string) => toggleReaction(m, e, me.id),
+    [me.id],
+  );
 
-  const isManager = !!conv && conv.type === 'channel' && (conv.members.find((m) => m.userId === me.id)?.role === 'owner' || me.role === 'admin');
+  const isManager =
+    !!conv &&
+    conv.type === 'channel' &&
+    (conv.members.find((m) => m.userId === me.id)?.role === 'owner' || me.role === 'admin');
   const actions = useMemo<MessageActionsContextValue>(
-    () => ({ meId: me.id, isAdmin: me.role === 'admin', isChannelManager: isManager, inThread: true, onReply: () => undefined, onEdit: (m) => setEditingId(m.id), onDelete: setDeleting }),
+    () => ({
+      meId: me.id,
+      isAdmin: me.role === 'admin',
+      isChannelManager: isManager,
+      inThread: true,
+      onReply: () => undefined,
+      onEdit: (m) => setEditingId(m.id),
+      onDelete: setDeleting,
+    }),
     [me.id, me.role, isManager],
   );
-  const members = useMemo(() => (conv ? conv.members.map((m) => users[m.userId]).filter((u): u is NonNullable<typeof u> => !!u) : []), [conv, users]);
+  const members = useMemo(
+    () =>
+      conv
+        ? conv.members.map((m) => users[m.userId]).filter((u): u is NonNullable<typeof u> => !!u)
+        : [],
+    [conv, users],
+  );
 
   const renderMsg = (m: Message, grouped: boolean, inThread = true) =>
     editingId === m.id ? (
-      <div key={m.id} className="px-3 py-1"><EditMessageBox message={m} onDone={() => setEditingId(null)} /></div>
+      <div key={m.id} className="px-3 py-1">
+        <EditMessageBox message={m} onDone={() => setEditingId(null)} />
+      </div>
     ) : (
       <MessageItem
         key={m.id}
@@ -84,7 +125,13 @@ export function ThreadPanel({ rootId, onClose }: { rootId: string; onClose: () =
       <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
         <div className="min-w-0">
           <h2 className="font-semibold">{t('thread.title')}</h2>
-          {conv && <p className="truncate text-xs text-muted" dir="auto">{t('thread.inChannel', { name: `${conv.type === 'channel' ? '#' : ''}${titleOf(conv)}` })}</p>}
+          {conv && (
+            <p className="truncate text-xs text-muted" dir="auto">
+              {t('thread.inChannel', {
+                name: `${conv.type === 'channel' ? '#' : ''}${titleOf(conv)}`,
+              })}
+            </p>
+          )}
         </div>
         <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label={t('common.close')}>
           <X className="size-4" />
@@ -106,7 +153,9 @@ export function ThreadPanel({ rootId, onClose }: { rootId: string; onClose: () =
               <Skeleton className="h-10" />
             </div>
           )}
-          {thread?.status === 'error' && !thread.root && <EmptyState title={t('thread.loadFailed')} />}
+          {thread?.status === 'error' && !thread.root && (
+            <EmptyState title={t('thread.loadFailed')} />
+          )}
           {thread?.root && (
             <>
               {renderMsg(thread.root, false)}
@@ -114,10 +163,29 @@ export function ThreadPanel({ rootId, onClose }: { rootId: string; onClose: () =
                 <span>{t('thread.repliesCount', { count: thread.replies.length })}</span>
                 <span className="h-px flex-1 bg-line" />
               </div>
-              {thread.replies.length === 0 && thread.pending.length === 0 && <p className="px-4 py-3 text-sm text-muted">{t('thread.noReplies')}</p>}
-              {thread.replies.map((m, i) => renderMsg(m, i > 0 && thread.replies[i - 1]!.authorId === m.authorId && new Date(m.createdAt).getTime() - new Date(thread.replies[i - 1]!.createdAt).getTime() < 300_000))}
+              {thread.replies.length === 0 && thread.pending.length === 0 && (
+                <p className="px-4 py-3 text-sm text-muted">{t('thread.noReplies')}</p>
+              )}
+              {thread.replies.map((m, i) =>
+                renderMsg(
+                  m,
+                  i > 0 &&
+                    thread.replies[i - 1]!.authorId === m.authorId &&
+                    new Date(m.createdAt).getTime() -
+                      new Date(thread.replies[i - 1]!.createdAt).getTime() <
+                      300_000,
+                ),
+              )}
               {thread.pending.map((p) => (
-                <PendingItem key={p.clientMsgId} pending={p} author={authorOf(p.authorId)} grouped={false} onRetry={retryPending} onDiscard={discardPending} resolveMention={resolveMention} />
+                <PendingItem
+                  key={p.clientMsgId}
+                  pending={p}
+                  author={authorOf(p.authorId)}
+                  grouped={false}
+                  onRetry={retryPending}
+                  onDiscard={discardPending}
+                  resolveMention={resolveMention}
+                />
               ))}
             </>
           )}

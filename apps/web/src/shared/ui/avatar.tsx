@@ -27,11 +27,24 @@ export function initials(name: string): string {
   return (first + (last ?? '')).toUpperCase();
 }
 
-export const Avatar = memo(function Avatar({ name, hue, size = 'md', presence, isBot, className }: AvatarProps) {
+export const Avatar = memo(function Avatar({
+  name,
+  hue,
+  size = 'md',
+  presence,
+  isBot,
+  className,
+}: AvatarProps) {
   return (
     <span
-      className={cn('relative inline-grid shrink-0 place-items-center rounded-full font-semibold text-white', sizes[size], className)}
-      style={{ background: `linear-gradient(135deg, hsl(${hue} 70% 42%), hsl(${(hue + 35) % 360} 75% 34%))` }}
+      className={cn(
+        'relative inline-grid shrink-0 place-items-center rounded-full font-semibold text-white',
+        sizes[size],
+        className,
+      )}
+      style={{
+        background: `linear-gradient(135deg, hsl(${hue} 70% 42%), hsl(${(hue + 35) % 360} 75% 34%))`,
+      }}
       aria-hidden="true"
     >
       {isBot ? '🤖' : initials(name)}

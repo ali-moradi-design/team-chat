@@ -13,7 +13,13 @@ export function useConversationTitle(): (c: TitleSource) => string {
   const meId = useSession((s) => s.me?.id ?? '');
   const byId = useUsers((s) => s.byId);
   return useCallback(
-    (c) => conversationTitle(c, meId, (id) => byId[id]?.name ?? t('common.unknownUser'), t('common.you')),
+    (c) =>
+      conversationTitle(
+        c,
+        meId,
+        (id) => byId[id]?.name ?? t('common.unknownUser'),
+        t('common.you'),
+      ),
     [meId, byId, t],
   );
 }

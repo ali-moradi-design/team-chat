@@ -84,12 +84,18 @@ export function buildItems(opts: {
       prevDay = day;
       prevAuthor = '';
     }
-    if (!dividerPlaced && opts.dividerAfterId && m.id > opts.dividerAfterId && m.authorId !== opts.meId) {
+    if (
+      !dividerPlaced &&
+      opts.dividerAfterId &&
+      m.id > opts.dividerAfterId &&
+      m.authorId !== opts.meId
+    ) {
       items.push({ kind: 'divider', key: 'divider' });
       dividerPlaced = true;
       prevAuthor = '';
     }
-    const grouped = prevAuthor === m.authorId && time - prevTime < GROUP_WINDOW_MS && !m.threadRootId;
+    const grouped =
+      prevAuthor === m.authorId && time - prevTime < GROUP_WINDOW_MS && !m.threadRootId;
     items.push({ kind: 'message', key: m.id, id: m.id, grouped });
     prevAuthor = m.authorId;
     prevTime = time;

@@ -4,7 +4,13 @@ import { useUsers } from '@/entities/user';
 import { useTyping, useTypingUserIds } from '../model/typing';
 
 /** Reserves its height so the timeline never jumps when someone starts typing. */
-export function TypingIndicator({ conversationId, meId }: { conversationId: string; meId: string }) {
+export function TypingIndicator({
+  conversationId,
+  meId,
+}: {
+  conversationId: string;
+  meId: string;
+}) {
   const { t } = useTranslation();
   const ids = useTypingUserIds(conversationId, meId);
   const byId = useUsers((s) => s.byId);
@@ -31,7 +37,11 @@ export function TypingIndicator({ conversationId, meId }: { conversationId: stri
         <>
           <span className="flex gap-0.5" aria-hidden="true">
             {[0, 1, 2].map((i) => (
-              <span key={i} className="size-1 rounded-full bg-muted" style={{ animation: `blink 1.2s ${i * 0.2}s infinite` }} />
+              <span
+                key={i}
+                className="size-1 rounded-full bg-muted"
+                style={{ animation: `blink 1.2s ${i * 0.2}s infinite` }}
+              />
             ))}
           </span>
           <span className="truncate">{text}</span>

@@ -22,7 +22,10 @@ function useDebounced<T>(value: T, ms: number): T {
 function Highlight({ text, query }: { text: string; query: string }) {
   const words = query.split(/\s+/).filter((w) => w.length > 1);
   if (words.length === 0) return <>{text}</>;
-  const re = new RegExp(`(${words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'giu');
+  const re = new RegExp(
+    `(${words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
+    'giu',
+  );
   return (
     <>
       {text.split(re).map((part, i) =>
@@ -72,17 +75,25 @@ export function SearchPanel({
       if (pageParam) p.set('beforeId', pageParam);
       return api<SearchResponse>(`/api/search?${p}`, { signal });
     },
-    getNextPageParam: (last) => (last.hasMore ? last.results[last.results.length - 1]?.id : undefined),
+    getNextPageParam: (last) =>
+      last.hasMore ? last.results[last.results.length - 1]?.id : undefined,
   });
 
   const results = useMemo(() => query.data?.pages.flatMap((p) => p.results) ?? [], [query.data]);
-  const convOptions = useMemo(() => Object.values(convs).sort((a, b) => titleOf(a).localeCompare(titleOf(b))), [convs, titleOf]);
-  const userOptions = useMemo(() => Object.values(users).sort((a, b) => a.name.localeCompare(b.name)), [users]);
+  const convOptions = useMemo(
+    () => Object.values(convs).sort((a, b) => titleOf(a).localeCompare(titleOf(b))),
+    [convs, titleOf],
+  );
+  const userOptions = useMemo(
+    () => Object.values(users).sort((a, b) => a.name.localeCompare(b.name)),
+    [users],
+  );
 
-  const select = 'h-9 w-full rounded-lg border border-line bg-elevated px-2 text-sm text-fg focus:border-accent focus:outline-none';
+  const select =
+    'h-9 w-full rounded-lg border border-line bg-elevated px-2 text-sm text-fg focus:border-accent focus:outline-none';
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <aside className="flex h-full min-h-0 flex-col bg-panel" aria-label={t('search.title')}>
       <div className="flex items-center justify-between border-b border-line px-4 py-3">
         <h2 className="font-semibold">{t('search.title')}</h2>
         <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label={t('common.close')}>
@@ -92,7 +103,14 @@ export function SearchPanel({
       <div className="flex flex-col gap-2 border-b border-line p-3">
         <div className="relative">
           <SearchIcon className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-muted" />
-          <Input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('search.placeholder')} className="ps-9" aria-label={t('search.placeholder')} />
+          <Input
+            autoFocus
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={t('search.placeholder')}
+            className="ps-9"
+            aria-label={t('search.placeholder')}
+          />
         </div>
         <div className="grid grid-cols-2 gap-2">
           <label className="flex flex-col gap-1 text-xs text-muted">
@@ -122,7 +140,9 @@ export function SearchPanel({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {debounced.length < 2 && <p className="p-6 text-center text-sm text-muted">{t('search.hint')}</p>}
+        {debounced.length < 2 && (
+          <p className="p-6 text-center text-sm text-muted">{t('search.hint')}</p>
+        )}
         {query.isLoading && debounced.length >= 2 && (
           <div className="flex flex-col gap-3 p-4">
             {[0, 1, 2].map((i) => (
@@ -130,20 +150,35 @@ export function SearchPanel({
             ))}
           </div>
         )}
-        {query.isError && <p className="p-6 text-center text-sm text-danger-ink">{t('search.failed')}</p>}
-        {query.isSuccess && results.length === 0 && <EmptyState icon={<SearchIcon className="size-6" />} title={t('search.noResults')} />}
+        {query.isError && (
+          <p className="p-6 text-center text-sm text-danger-ink">{t('search.failed')}</p>
+        )}
+        {query.isSuccess && results.length === 0 && (
+          <EmptyState icon={<SearchIcon className="size-6" />} title={t('search.noResults')} />
+        )}
         <ul className="p-2">
           {results.map((m) => {
             const conv = convs[m.conversationId];
             const u = users[m.authorId];
             return (
               <li key={m.id}>
-                <button type="button" onClick={() => onJump(m)} className="flex w-full gap-3 rounded-xl px-3 py-2.5 text-start hover:bg-elevated">
+                <button
+                  type="button"
+                  onClick={() => onJump(m)}
+                  className="flex w-full gap-3 rounded-xl px-3 py-2.5 text-start hover:bg-elevated"
+                >
                   <UserAvatar userId={m.authorId} size="sm" />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline gap-2 text-xs text-muted">
-                      <span className="truncate font-semibold text-fg" dir="auto">{u?.name ?? t('common.unknownUser')}</span>
-                      {conv && <span className="truncate" dir="auto">{conv.type === 'channel' ? '#' : ''}{titleOf(conv)}</span>}
+                      <span className="truncate font-semibold text-fg" dir="auto">
+                        {u?.name ?? t('common.unknownUser')}
+                      </span>
+                      {conv && (
+                        <span className="truncate" dir="auto">
+                          {conv.type === 'channel' ? '#' : ''}
+                          {titleOf(conv)}
+                        </span>
+                      )}
                       <time className="ms-auto shrink-0">{f.dateTime(m.createdAt)}</time>
                     </span>
                     <span className="line-clamp-3 text-sm" dir="auto">
@@ -157,12 +192,17 @@ export function SearchPanel({
         </ul>
         {query.hasNextPage && (
           <div className="p-3 text-center">
-            <Button size="sm" variant="secondary" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={query.isFetchingNextPage}
+              onClick={() => void query.fetchNextPage()}
+            >
               {t('search.loadMore')}
             </Button>
           </div>
         )}
       </div>
-    </div>
+    </aside>
   );
 }

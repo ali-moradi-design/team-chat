@@ -12,7 +12,9 @@ export function AdminDialog() {
   const close = useDialogs((s) => s.close);
   const me = useSession((s) => s.me)!;
   const users = useUsers((s) => s.byId);
-  const list = Object.values(users).filter((u) => !u.isBot).sort((a, b) => a.name.localeCompare(b.name));
+  const list = Object.values(users)
+    .filter((u) => !u.isBot)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const setRole = async (id: string, role: 'admin' | 'member') => {
     try {
@@ -24,17 +26,30 @@ export function AdminDialog() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && close('admin')} title={t('admin.title')} mobileSheet>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => !o && close('admin')}
+      title={t('admin.title')}
+      mobileSheet
+    >
       <ul className="divide-y divide-line">
         {list.map((u) => (
           <li key={u.id} className="flex items-center gap-3 px-5 py-3">
             <UserAvatar userId={u.id} />
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-medium" dir="auto">{u.name}</span>
-              <span className="block truncate text-xs text-muted">{u.role === 'admin' ? t('settings.admin') : t('settings.member')} · @{u.handle}</span>
+              <span className="block truncate text-sm font-medium" dir="auto">
+                {u.name}
+              </span>
+              <span className="block truncate text-xs text-muted">
+                {u.role === 'admin' ? t('settings.admin') : t('settings.member')} · @{u.handle}
+              </span>
             </span>
             {u.id !== me.id && (
-              <Button size="sm" variant="secondary" onClick={() => void setRole(u.id, u.role === 'admin' ? 'member' : 'admin')}>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => void setRole(u.id, u.role === 'admin' ? 'member' : 'admin')}
+              >
                 {u.role === 'admin' ? t('admin.makeMember') : t('admin.makeAdmin')}
               </Button>
             )}

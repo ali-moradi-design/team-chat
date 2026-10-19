@@ -1,7 +1,10 @@
 import * as RadixSwitch from '@radix-ui/react-switch';
 import { cn } from '../lib/cn';
 
-export function Switch({ className, ...props }: React.ComponentPropsWithoutRef<typeof RadixSwitch.Root>) {
+export function Switch({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof RadixSwitch.Root>) {
   return (
     <RadixSwitch.Root
       className={cn(
