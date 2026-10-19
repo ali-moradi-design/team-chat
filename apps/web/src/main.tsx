@@ -25,6 +25,11 @@ if (import.meta.env.DEV) {
   );
 }
 
+// Benign browser notice raised by ResizeObserver-driven layout (virtualized list); not an app error.
+window.addEventListener('error', (e) => {
+  if (e.message.startsWith('ResizeObserver loop')) e.stopImmediatePropagation();
+});
+
 async function start() {
   applyPrefsToDocument(usePrefs.getState());
   await initI18n();

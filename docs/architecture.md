@@ -5,14 +5,14 @@ Decisions confirmed with the owner (2026-10-19) and how they turned out in code.
 
 ## Stack
 
-| Concern    | Choice                                                                                       |
-| ---------- | -------------------------------------------------------------------------------------------- |
-| Web        | Vite + React 19 + Tailwind v4 (not Next.js: logged-in SPA, long-lived WebSocket, no SEO need) |
-| Server     | Express 5, Socket.IO 4, Mongoose 9, Zod 4                                                    |
-| Auth       | argon2id, `jose` JWT (15 min) + rotating refresh token in an httpOnly cookie                  |
-| Tooling    | pnpm workspaces + Turborepo, TypeScript 6, ESLint 9, **Prettier**, Vitest, Playwright        |
-| Languages  | English (default) and Persian (RTL); Gregorian dates; native digits with a Latin-digit switch |
-| Scale-out  | `@socket.io/redis-adapter` behind `REDIS_URL` (Compose profile `scale`); off by default       |
+| Concern   | Choice                                                                                        |
+| --------- | --------------------------------------------------------------------------------------------- |
+| Web       | Vite + React 19 + Tailwind v4 (not Next.js: logged-in SPA, long-lived WebSocket, no SEO need) |
+| Server    | Express 5, Socket.IO 4, Mongoose 9, Zod 4                                                     |
+| Auth      | argon2id, `jose` JWT (15 min) + rotating refresh token in an httpOnly cookie                  |
+| Tooling   | pnpm workspaces + Turborepo, TypeScript 6, ESLint 9, **Prettier**, Vitest, Playwright         |
+| Languages | English (default) and Persian (RTL); Gregorian dates; native digits with a Latin-digit switch |
+| Scale-out | `@socket.io/redis-adapter` behind `REDIS_URL` (Compose profile `scale`); off by default       |
 
 ## Packages
 
@@ -38,14 +38,14 @@ Modules: `users`, `auth`, `conversations`, `messages`, `read-states`, `files`.
 
 ### Data model (MongoDB)
 
-| Collection      | Notes / indexes                                                                                                         |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `users`         | unique `handle`, unique `email`; role `admin`/`member`; bots flagged                                                    |
-| `conversations` | `type` channel/dm, `members[{userId, role}]`, `lastMessage` snapshot; `{members.userId, lastMessageAt}`; unique channel name (partial) and unique DM key (partial) |
+| Collection      | Notes / indexes                                                                                                                                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`         | unique `handle`, unique `email`; role `admin`/`member`; bots flagged                                                                                                                               |
+| `conversations` | `type` channel/dm, `members[{userId, role}]`, `lastMessage` snapshot; `{members.userId, lastMessageAt}`; unique channel name (partial) and unique DM key (partial)                                 |
 | `messages`      | `{conversationId, threadRootId, _id:-1}` history range scans; unique `{conversationId, authorId, clientMsgId}` (idempotent send); text index (`language: none`); `{conversationId, mentions, _id}` |
-| `readstates`    | one pointer per (user, conversation): `lastReadMessageId` (monotonic via `$max`), `muted`                                |
-| `files`         | owner, kind, dimensions, storage keys, `conversationId`/`messageId` once attached                                       |
-| `refreshtokens` | SHA-256 hash, family id, TTL index                                                                                       |
+| `readstates`    | one pointer per (user, conversation): `lastReadMessageId` (monotonic via `$max`), `muted`                                                                                                          |
+| `files`         | owner, kind, dimensions, storage keys, `conversationId`/`messageId` once attached                                                                                                                  |
+| `refreshtokens` | SHA-256 hash, family id, TTL index                                                                                                                                                                 |
 
 Why a document database fits: messages are independent documents read and written by conversation; attachments,
 reactions and mentions are naturally embedded; history pages are index range scans on `_id` (ObjectIds sort by time).

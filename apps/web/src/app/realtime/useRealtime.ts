@@ -120,7 +120,10 @@ export function useRealtime(): void {
     return () => {
       stopRefresh();
       disconnectSocket();
+      // Nothing from this session may leak into the next one (different user, same tab).
       useMessages.getState().clear();
+      useConversations.setState({ byId: {}, loaded: false, activeId: null });
+      useUsers.setState({ byId: {}, byHandle: {}, presence: {}, loaded: false });
     };
   }, [meId, qc]);
 

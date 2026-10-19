@@ -15,19 +15,19 @@ JWT_SECRET=$(openssl rand -hex 32) docker compose --profile app up -d --build
 
 ## Environment
 
-| Variable           | Default                    | Notes                                                       |
-| ------------------ | -------------------------- | ----------------------------------------------------------- |
-| `JWT_SECRET`       | —                          | **required** in production                                  |
-| `MONGODB_URI`      | `mongodb://127.0.0.1:27017/team-chat` |                                                  |
-| `CORS_ORIGINS`     | localhost dev origins      | same-origin deployments need no entry                       |
-| `TRUST_PROXY`      | `false`                    | `true` behind nginx/Traefik (real client IPs for rate limits) |
-| `COOKIE_SECURE`    | `true` in production       | set `false` only for plain-HTTP testing                     |
-| `UPLOAD_DIR`       | `./uploads`                | `/data/uploads` in the image                                |
-| `MAX_FILE_BYTES`   | `10485760`                 |                                                             |
-| `DEMO_MODE`        | `false`                    | passwordless demo accounts + nightly reset (03:00 UTC)      |
-| `DEMO_BOT`         | = `DEMO_MODE`              |                                                             |
-| `REDIS_URL`        | —                          | enables the Redis adapter                                   |
-| `AUTH_RATE_LIMIT`  | `30` / 15 min / IP         | login + register + demo                                     |
+| Variable          | Default                               | Notes                                                         |
+| ----------------- | ------------------------------------- | ------------------------------------------------------------- |
+| `JWT_SECRET`      | —                                     | **required** in production                                    |
+| `MONGODB_URI`     | `mongodb://127.0.0.1:27017/team-chat` |                                                               |
+| `CORS_ORIGINS`    | localhost dev origins                 | same-origin deployments need no entry                         |
+| `TRUST_PROXY`     | `false`                               | `true` behind nginx/Traefik (real client IPs for rate limits) |
+| `COOKIE_SECURE`   | `true` in production                  | set `false` only for plain-HTTP testing                       |
+| `UPLOAD_DIR`      | `./uploads`                           | `/data/uploads` in the image                                  |
+| `MAX_FILE_BYTES`  | `10485760`                            |                                                               |
+| `DEMO_MODE`       | `false`                               | passwordless demo accounts + nightly reset (03:00 UTC)        |
+| `DEMO_BOT`        | = `DEMO_MODE`                         |                                                               |
+| `REDIS_URL`       | —                                     | enables the Redis adapter                                     |
+| `AUTH_RATE_LIMIT` | `30` / 15 min / IP                    | login + register + demo                                       |
 
 ## Nginx (WebSockets!)
 

@@ -47,7 +47,10 @@ function ImageAttachment({
       type="button"
       onClick={() => onOpen?.(a)}
       className="group/img relative block max-w-[min(22rem,100%)] overflow-hidden rounded-xl border border-line bg-elevated"
-      style={{ aspectRatio: String(ratio), width: `min(${Math.min(a.width ?? 352, 352)}px, 100%)` }}
+      style={{
+        aspectRatio: String(ratio),
+        width: `min(${Math.max(Math.min(a.width ?? 352, 352), 64)}px, 100%)`,
+      }}
       aria-label={a.name}
     >
       <img

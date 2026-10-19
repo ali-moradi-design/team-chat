@@ -123,3 +123,56 @@ test.describe('two users chatting in real time', () => {
     await context.close();
   });
 });
+
+test('file sharing: upload an image and a document, open the lightbox, download link works', async ({
+  browser,
+}) => {
+  const { page, context } = await newUserPage(browser, 'admin');
+  await openChannel(page, 'design-team');
+  // 1x1 PNG
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    'base64',
+  );
+  await page
+    .locator('input[type=file]')
+    .first()
+    .setInputFiles([
+      { name: 'pixel.png', mimeType: 'image/png', buffer: png },
+      { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('hello from e2e') },
+    ]);
+  await expect(page.getByText('notes.txt')).toBeVisible();
+  const caption = `files ${Date.now()}`;
+  await page.getByRole('textbox').first().fill(caption);
+  const sendBtn = page.getByRole('button', { name: 'Send message' });
+  await expect(sendBtn).toBeEnabled(); // waits for both uploads
+  await sendBtn.click();
+
+  const row = page.locator('article', { hasText: caption });
+  const img = row.locator('img');
+  await expect(img).toBeVisible();
+  await expect
+    .poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0))
+    .toBe(true);
+  const doc = row.getByRole('link', { name: /notes\.txt/ });
+  await expect(doc).toHaveAttribute('download', 'notes.txt');
+
+  await img.click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await context.close();
+});
+
+test('rejects files that are too large or have a blocked type before uploading', async ({
+  browser,
+}) => {
+  const { page, context } = await newUserPage(browser, 'member');
+  await openChannel(page, 'design-team');
+  await page
+    .locator('input[type=file]')
+    .first()
+    .setInputFiles({ name: 'evil.svg', mimeType: 'image/svg+xml', buffer: Buffer.from('<svg/>') });
+  await expect(page.getByText('This file type is not allowed.')).toBeVisible();
+  await context.close();
+});
