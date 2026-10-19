@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+pnpm-lock.yaml
+.turbo
+docs/mockups/png
+docs/mockups/src
+playwright-report
+test-results
+uploads

@@ -1,1 +1,10 @@
 node_modules/
+dist/
+coverage/
+.turbo/
+.env
+*.log
+uploads/
+playwright-report/
+test-results/
+*.tsbuildinfo
