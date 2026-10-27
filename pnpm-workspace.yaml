@@ -1,7 +1,7 @@
 packages:
   - apps/*
   - packages/*
-onlyBuiltDependencies:
-  - esbuild
-  - argon2
-  - sharp
+allowBuilds:
+  esbuild: true
+  argon2: true
+  sharp: true

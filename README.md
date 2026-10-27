@@ -40,7 +40,7 @@ mentions, files, read receipts, live presence, full-text search — in English a
 
 ## Quick start
 
-Requirements: Node 22, pnpm 10, Docker (for MongoDB).
+Requirements: Node 24, pnpm 12, Docker (for MongoDB).
 
 ```bash
 pnpm install
