@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1.7
 # One image: the API/WebSocket server also serves the built web app (SERVE_WEB_DIR).
 
-FROM node:22-slim AS base
+FROM node:24-slim AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH CI=true
-RUN corepack enable
+RUN npm install -g pnpm@12.15.0
 WORKDIR /repo
 
 # ---- dependencies (cached while manifests do not change) ----------------------------------
@@ -22,7 +22,7 @@ RUN pnpm --filter @team-chat/web build \
  && pnpm --filter @team-chat/server deploy --prod --legacy /out
 
 # ---- runtime ------------------------------------------------------------------------------------
-FROM node:22-slim AS runtime
+FROM node:24-slim AS runtime
 ENV NODE_ENV=production PORT=3001 HOST=0.0.0.0 UPLOAD_DIR=/data/uploads SERVE_WEB_DIR=/app/web TRUST_PROXY=true
 WORKDIR /app
 COPY --from=build /out/node_modules ./node_modules
