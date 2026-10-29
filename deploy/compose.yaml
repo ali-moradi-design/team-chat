@@ -11,6 +11,9 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: app
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is not set}
+      # MongoDB 8 refuses to start on Linux 6.19+ kernels (SERVER-121912) unless glibc owns rseq;
+      # harmless on older kernels, so a kernel upgrade on the server cannot stop the database
+      GLIBC_TUNABLES: glibc.pthread.rseq=1
     volumes:
       - mongo-data:/data/db
     networks: [backend]

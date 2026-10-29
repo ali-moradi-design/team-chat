@@ -20,6 +20,9 @@ jobs:
       mongo:
         image: mongo:8
         ports: ['27017:27017']
+        # MongoDB 8 exits on the runners' Linux 6.19+ kernels (SERVER-121912) unless glibc owns rseq
+        env:
+          GLIBC_TUNABLES: glibc.pthread.rseq=1
         options: >-
           --health-cmd "mongosh --quiet --eval 'db.adminCommand(\"ping\").ok'"
           --health-interval 5s --health-timeout 5s --health-retries 10
@@ -50,6 +53,9 @@ jobs:
       mongo:
         image: mongo:8
         ports: ['27017:27017']
+        # MongoDB 8 exits on the runners' Linux 6.19+ kernels (SERVER-121912) unless glibc owns rseq
+        env:
+          GLIBC_TUNABLES: glibc.pthread.rseq=1
         options: >-
           --health-cmd "mongosh --quiet --eval 'db.adminCommand(\"ping\").ok'"
           --health-interval 5s --health-timeout 5s --health-retries 10
