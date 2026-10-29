@@ -46,8 +46,9 @@ export function QuickSwitcher({ onSearch }: { onSearch: (q: string) => void }) {
   const [index, setIndex] = useState(0);
   const list = useRef<HTMLUListElement>(null);
 
+  // Clear on close, not on open: an effect after opening could wipe what was already typed.
   useEffect(() => {
-    if (open) {
+    if (!open) {
       setQ('');
       setIndex(0);
     }
