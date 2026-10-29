@@ -10,3 +10,13 @@
 - UI strings go in both `apps/web/src/shared/i18n/locales/en.ts` and `fa.ts` (a test keeps them in sync).
 - Use CSS logical properties (`ms-*`, `ps-*`, `start-*`, `text-start`) so RTL works without special cases.
 - Tests that need MongoDB use `TEST_MONGODB_URI` (default `mongodb://127.0.0.1:27017`); each run uses a throwaway database.
+
+## graphify (use it to save tokens)
+
+The code graph lives in `graphify-out/` (ignored by Git, built locally, costs no LLM tokens).
+
+- Before reading many files, ask the graph first: `graphify query "<question>" --budget 1500`,
+  `graphify explain "<node>"`, `graphify path "<A>" "<B>"`. Open only the files the answer points to.
+- `graphify-out/GRAPH_REPORT.md` has the community map and god nodes; read it instead of listing directories.
+- After code changes run `graphify update .` (AST only, no LLM, no API key).
+- Do not run a full `/graphify` pass on docs or images. If the graph is missing, rebuild it with `graphify update .`.

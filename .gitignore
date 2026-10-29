@@ -8,3 +8,4 @@ uploads/
 playwright-report/
 test-results/
 *.tsbuildinfo
+graphify-out/
