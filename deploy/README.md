@@ -6,7 +6,7 @@ Live at https://team-chat.ali-moradi-develop.com. One VPS, host Nginx in front, 
 General notes (environment variables, backups): [docs/deploy.md](../docs/deploy.md).
 
 - `compose.yaml` — the app and its own MongoDB 8 (auth on, `--wiredTigerCacheSizeGB 0.25`, internal network,
-  no published port). The app is the only published port (`127.0.0.1:3106`), read-only, non-root,
+  no published port). The app is the only published port (`127.0.0.1:3108`), read-only, non-root,
   `no-new-privileges`, memory limits; uploads on the `uploads` volume. `DEMO_MODE` is on: demo accounts, the bot
   and the nightly reset (03:00 UTC, inside the app, no cron needed).
 - `.env.example` — the names in `/srv/apps/team-chat/.env` (mode 600, owner `deploy`).

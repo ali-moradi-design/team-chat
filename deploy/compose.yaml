@@ -44,7 +44,7 @@ services:
     networks: [backend, frontend]
     # Nginx on the host proxies to this; Docker bypasses ufw, so loopback only
     ports:
-      - '127.0.0.1:3106:3001'
+      - '127.0.0.1:3108:3001'
     depends_on:
       mongo:
         condition: service_healthy

@@ -101,9 +101,9 @@ jobs:
           docker compose exec -T app node dist/scripts/seed.js
       - name: Smoke test
         run: |
-          curl -fsS http://127.0.0.1:3106/health
-          curl -fsS http://127.0.0.1:3106/api/config
-          curl -fsS http://127.0.0.1:3106/ | grep -q '<div id="root">'
+          curl -fsS http://127.0.0.1:3108/health
+          curl -fsS http://127.0.0.1:3108/api/config
+          curl -fsS http://127.0.0.1:3108/ | grep -q '<div id="root">'
       - name: Image holds only build output
         run: |
           docker run --rm --entrypoint sh ghcr.io/ali-moradi-design/team-chat:ci -c 'ls /app; test ! -e /app/src && test ! -e /app/node_modules/typescript && test ! -e /app/node_modules/vite'
