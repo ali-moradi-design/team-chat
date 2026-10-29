@@ -1,0 +1,62 @@
+# /srv/apps/team-chat/compose.yaml: the app (API + Socket.IO + built web app) and its own MongoDB.
+# The image is built in CI (.github/workflows/docker.yml) and only pulled here.
+# .env next to this file holds IMAGE_TAG (the commit SHA to run) and the secrets
+# (names in .env.example). deploy-app changes only the IMAGE_TAG line.
+name: team-chat
+
+services:
+  mongo:
+    image: mongo:8
+    command: ['--wiredTigerCacheSizeGB', '0.25']
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: app
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is not set}
+    volumes:
+      - mongo-data:/data/db
+    networks: [backend]
+    # no published ports: only the app reaches the database
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    mem_limit: 512m
+    restart: unless-stopped
+
+  app:
+    image: ghcr.io/ali-moradi-design/team-chat:${IMAGE_TAG:?IMAGE_TAG is not set}
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://app:${MONGO_PASSWORD}@mongo:27017/team-chat?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is not set}
+      CORS_ORIGINS: https://team-chat.ali-moradi-develop.com
+      COOKIE_SECURE: 'true'
+      # Nginx is the one proxy in front: real client IPs for the rate limits
+      TRUST_PROXY: 'true'
+      # demo accounts without passwords, the bot and the nightly reset (03:00 UTC)
+      DEMO_MODE: 'true'
+    volumes:
+      - uploads:/data/uploads
+    networks: [backend, frontend]
+    # Nginx on the host proxies to this; Docker bypasses ufw, so loopback only
+    ports:
+      - '127.0.0.1:3106:3001'
+    depends_on:
+      mongo:
+        condition: service_healthy
+    # the image's HEALTHCHECK calls /health (200 once MongoDB is connected)
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 384m
+    restart: unless-stopped
+
+networks:
+  backend:
+    internal: true # the database has no internet and nothing outside reaches it
+  frontend: {}
+
+volumes:
+  mongo-data:
+  uploads:

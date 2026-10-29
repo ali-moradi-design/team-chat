@@ -11,3 +11,4 @@ docs
 uploads
 *.log
 .env
+graphify-out
