@@ -100,7 +100,8 @@ test.describe('two users chatting in real time', () => {
     await page.keyboard.press('Control+k');
     await page.getByRole('combobox').fill('engi');
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/c\//);
+    // wait for the new conversation to render: its header buttons act on the shown conversation
+    await expect(page.getByRole('heading', { level: 1, name: 'engineering' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Search in conversation' }).click();
     await page.getByPlaceholder('Search messages…').fill('index');
