@@ -160,10 +160,13 @@ body {
   background: color-mix(in oklab, var(--accent) 40%, transparent);
 }
 
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 6px;
+/* In the base layer so utilities like `focus:outline-none` can turn it off. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
 }
 
 button {
